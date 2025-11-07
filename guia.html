@@ -5,198 +5,327 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Utilização - ChefGuedes</title>
     <link rel="stylesheet" href="css/styles.css">
-    <style>
-        .guide-section {
-            margin: 30px 0;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        .guide-section h2 {
-            color: #007bff;
-            margin-bottom: 15px;
-        }
-        .guide-section ul {
-            line-height: 2;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .back-link:hover {
-            opacity: 0.8;
-        }
-    </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pages/explorar-receitas.html">Explorar Receitas</a></li>
+                <li><a href="pages/grupos.html">Grupos</a></li>
+                <li><a href="guia.html" class="active">📖 Guia</a></li>
+                <li id="authMenuItems"><a href="login.html">🔐 Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <main class="container">
-        <a href="index.html" class="back-link">← Voltar à Página Principal</a>
-        
-        <h1 style="text-align: center; margin-bottom: 40px;">Guia de Utilização do Site</h1>
-
-        <div class="guide-section">
-            <h2>📋 Página Principal</h2>
-            <p>A página inicial apresenta uma visão geral do site e permite acesso rápido a todas as funcionalidades.</p>
-            <ul>
-                <li>Use o menu de navegação para aceder a qualquer página</li>
-                <li>Clique nos cards de funcionalidades para ir diretamente para a página desejada</li>
-            </ul>
+        <div class="page-header">
+            <h1>📖 Guia de Utilização do ChefGuedes</h1>
+            <p>Aprenda a tirar o máximo partido de todas as funcionalidades do site</p>
         </div>
 
-        <div class="guide-section">
-            <h2>🍳 Explorar Receitas</h2>
-            <p>Nesta página pode ver, adicionar e gerir receitas.</p>
-            <ul>
-                <li><strong>Ver receitas:</strong> Todas as receitas são exibidas em cards com imagem, título e descrição</li>
-                <li><strong>Pesquisar:</strong> Use a barra de pesquisa para encontrar receitas específicas</li>
-                <li><strong>Filtrar:</strong> Selecione uma categoria no dropdown para filtrar por tipo de receita</li>
-                <li><strong>Adicionar receita:</strong> Clique em "+ Nova Receita" e preencha o formulário com:
-                    <ul>
+        <!-- Seção 1: Começar -->
+        <div class="dashboard-card">
+            <h3>🚀 Como Começar</h3>
+            <div style="padding: 15px 0;">
+                <h4 style="color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem;">1. Criar uma Conta</h4>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; line-height: 1.8;">
+                    Para aceder a todas as funcionalidades do ChefGuedes, comece por criar a sua conta gratuita. Clique em "Login" no menu e depois em "Regista-te aqui". Preencha os seus dados e pronto!
+                </p>
+                
+                <h4 style="color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem;">2. Fazer Login</h4>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; line-height: 1.8;">
+                    Após criar a conta, faça login com o seu email e palavra-passe. Pode marcar "Lembrar-me" para manter a sessão ativa.
+                </p>
+                
+                <h4 style="color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem;">3. Explorar o Site</h4>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    Use o menu de navegação no topo para aceder às diferentes páginas. O seu nome aparecerá no canto superior direito quando estiver logado.
+                </p>
+            </div>
+        </div>
+
+        <!-- Seção 2: Explorar Receitas -->
+        <div class="dashboard-card">
+            <h3>🍳 Explorar Receitas</h3>
+            <div style="padding: 15px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    A página de receitas é o coração do ChefGuedes. Aqui pode descobrir, criar e gerir todas as suas receitas favoritas.
+                </p>
+                
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--accent-color);">
+                    <strong style="color: var(--text-primary);">📋 Ver Receitas</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        Todas as receitas são apresentadas em cards com imagem, título e descrição. Clique numa receita para ver todos os detalhes, incluindo ingredientes e modo de preparação.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--accent-color);">
+                    <strong style="color: var(--text-primary);">🔍 Pesquisar e Filtrar</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        Use a barra de pesquisa para encontrar receitas específicas pelo nome. Utilize o filtro de categoria para ver apenas Entradas, Pratos Principais, Sobremesas ou Bebidas.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--success-color);">
+                    <strong style="color: var(--text-primary);">➕ Adicionar Nova Receita</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; margin-bottom: 10px; line-height: 1.7;">
+                        Clique no botão "+ Nova Receita" e preencha o formulário com:
+                    </p>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; line-height: 2;">
                         <li>Título da receita</li>
-                        <li>Categoria (Entrada, Prato Principal, Sobremesa, Bebida)</li>
-                        <li>Descrição breve</li>
-                        <li>Lista de ingredientes</li>
-                        <li>Modo de preparação</li>
-                        <li>Imagem (opcional - pode fazer upload de ficheiros de imagem)</li>
+                        <li>Categoria (Entrada, Prato Principal, Sobremesa ou Bebida)</li>
+                        <li>Descrição breve e apetitosa</li>
+                        <li>Lista de ingredientes (um por linha)</li>
+                        <li>Modo de preparação detalhado</li>
+                        <li>Imagem (opcional - pode fazer upload de ficheiros JPG, PNG, etc.)</li>
                     </ul>
-                </li>
-                <li><strong>Ver detalhes:</strong> Clique em qualquer receita para ver todos os detalhes</li>
-                <li><strong>Eliminar:</strong> Na página de detalhes, pode eliminar a receita</li>
-            </ul>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); border-left: 4px solid var(--danger-color);">
+                    <strong style="color: var(--text-primary);">🗑️ Gerir Receitas</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        Ao visualizar os detalhes de uma receita, encontrará um botão para eliminar a receita se necessário.
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>👥 Grupos</h2>
-            <p>Crie e gira grupos familiares ou de amigos para planear refeições em conjunto.</p>
-            <ul>
-                <li><strong>Criar grupo:</strong> Clique em "+ Criar Novo Grupo" e preencha:
-                    <ul>
-                        <li>Nome do grupo</li>
-                        <li>Descrição (opcional)</li>
+        <!-- Seção 3: Grupos -->
+        <div class="dashboard-card">
+            <h3>👥 Grupos e Agendamento</h3>
+            <div style="padding: 15px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    Crie grupos familiares ou de amigos para planear refeições em conjunto e partilhar receitas.
+                </p>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--secondary-color);">
+                    <strong style="color: var(--text-primary);">➕ Criar Grupo</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; margin-bottom: 10px; line-height: 1.7;">
+                        Clique em "+ Criar Novo Grupo" e preencha:
+                    </p>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; line-height: 2;">
+                        <li>Nome do grupo (ex: "Família Silva", "Amigos do Jantar")</li>
+                        <li>Descrição opcional do grupo</li>
                         <li>Emails dos membros separados por vírgula</li>
                     </ul>
-                </li>
-                <li><strong>Visualizar grupo:</strong> Clique em qualquer grupo para aceder às suas funcionalidades</li>
-                <li><strong>Gerir membros:</strong> No separador "Membros":
-                    <ul>
-                        <li>Ver todos os membros do grupo</li>
-                        <li>Adicionar novos membros</li>
-                        <li>Remover membros existentes</li>
-                    </ul>
-                </li>
-                <li><strong>Agendar receitas:</strong> No separador "Agendamento Semanal":
-                    <ul>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--secondary-color);">
+                    <strong style="color: var(--text-primary);">👤 Gerir Membros</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        No separador "Membros" pode ver todos os participantes do grupo, adicionar novos membros ou remover existentes.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); border-left: 4px solid var(--primary-color);">
+                    <strong style="color: var(--text-primary);">📅 Agendamento Semanal</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; margin-bottom: 10px; line-height: 1.7;">
+                        No separador "Agendamento Semanal" pode planear as refeições da semana:
+                    </p>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; line-height: 2;">
                         <li>Ver o planeamento da semana atual</li>
                         <li>Navegar entre semanas (anterior/próxima)</li>
-                        <li>Adicionar receitas para cada dia clicando em "+ Adicionar"</li>
+                        <li>Adicionar receitas clicando em "+ Adicionar" em cada dia</li>
                         <li>Escolher o tipo de refeição (Pequeno-almoço, Almoço, Jantar, Lanche)</li>
-                        <li>Selecionar a receita da lista</li>
-                        <li>Adicionar notas opcionais</li>
+                        <li>Selecionar a receita da lista das suas receitas</li>
+                        <li>Adicionar notas opcionais (ex: "Preparar na véspera")</li>
                         <li>Editar ou remover agendamentos existentes</li>
                     </ul>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>📊 Dashboard</h2>
-            <p>Visão geral de todas as suas atividades no site.</p>
-            <ul>
-                <li><strong>Estatísticas:</strong> Veja números rápidos sobre receitas, grupos e favoritos</li>
-                <li><strong>Receitas recentes:</strong> Últimas 5 receitas que criou</li>
-                <li><strong>Meus grupos:</strong> Lista rápida dos seus grupos</li>
-                <li><strong>Atividades recentes:</strong> Histórico das suas ações no site</li>
-                <li><strong>Próximas refeições:</strong> Refeições agendadas para os próximos 7 dias</li>
-                <li><strong>Acesso rápido:</strong> Botões para criar receitas e grupos rapidamente</li>
-            </ul>
+        <!-- Seção 4: Dashboard -->
+        <div class="dashboard-card">
+            <h3>📊 Dashboard</h3>
+            <div style="padding: 15px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    O Dashboard oferece uma visão geral completa de todas as suas atividades no ChefGuedes.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); padding: 20px; border-radius: var(--border-radius-sm); text-align: center; color: var(--text-inverse);">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;">📈</div>
+                        <div style="font-size: 0.9rem; opacity: 0.95;">Estatísticas Rápidas</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark)); padding: 20px; border-radius: var(--border-radius-sm); text-align: center; color: var(--text-inverse);">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;">📝</div>
+                        <div style="font-size: 0.9rem; opacity: 0.95;">Receitas Recentes</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, var(--success-color), #238c7f); padding: 20px; border-radius: var(--border-radius-sm); text-align: center; color: var(--text-inverse);">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;">📅</div>
+                        <div style="font-size: 0.9rem; opacity: 0.95;">Próximas Refeições</div>
+                    </div>
+                </div>
+
+                <ul style="color: var(--text-secondary); margin-left: 20px; line-height: 2;">
+                    <li><strong>Estatísticas:</strong> Números rápidos sobre receitas, grupos e favoritos</li>
+                    <li><strong>Receitas recentes:</strong> Últimas 5 receitas que criou</li>
+                    <li><strong>Meus grupos:</strong> Lista rápida dos seus grupos ativos</li>
+                    <li><strong>Atividades recentes:</strong> Histórico das suas ações no site</li>
+                    <li><strong>Próximas refeições:</strong> Refeições agendadas para os próximos 7 dias</li>
+                    <li><strong>Acesso rápido:</strong> Botões para criar receitas e grupos rapidamente</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>👤 Perfil</h2>
-            <p>Gerencie as suas informações pessoais e preferências.</p>
-            <ul>
-                <li><strong>Foto de perfil:</strong>
-                    <ul>
-                        <li>Clique na foto atual para fazer upload de uma nova</li>
-                        <li>Aceita ficheiros JPG, PNG, GIF, etc.</li>
-                        <li>A foto é guardada automaticamente ao submeter o formulário</li>
-                    </ul>
-                </li>
-                <li><strong>Informações pessoais:</strong> Atualize nome, email, telefone, bio e localização</li>
-                <li><strong>Preferências:</strong> 
-                    <ul>
-                        <li>Defina as suas cozinhas favoritas</li>
-                        <li>Indique restrições alimentares</li>
+        <!-- Seção 5: Perfil -->
+        <div class="dashboard-card">
+            <h3>👤 Gerir Perfil</h3>
+            <div style="padding: 15px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    Personalize as suas informações pessoais e preferências no perfil.
+                </p>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--primary-color);">
+                    <strong style="color: var(--text-primary);">📸 Foto de Perfil</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        Clique na foto atual para fazer upload de uma nova. Aceita ficheiros JPG, PNG, GIF, etc. A foto é guardada automaticamente ao submeter o formulário.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--accent-color);">
+                    <strong style="color: var(--text-primary);">ℹ️ Informações Pessoais</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; line-height: 1.7;">
+                        Atualize o seu nome, email, telefone, biografia pessoal e localização.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 15px; border-left: 4px solid var(--success-color);">
+                    <strong style="color: var(--text-primary);">⚙️ Preferências</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px; margin-bottom: 10px; line-height: 1.7;">
+                        Configure as suas preferências culinárias:
+                    </p>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; line-height: 2;">
+                        <li>Defina as suas cozinhas favoritas (ex: Portuguesa, Italiana, Asiática)</li>
+                        <li>Indique restrições alimentares (ex: Vegetariano, Sem glúten)</li>
                         <li>Configure preferências de newsletter e notificações</li>
                     </ul>
-                </li>
-                <li><strong>Guardar:</strong> Clique em "Guardar Alterações" para confirmar as mudanças</li>
-                <li><strong>Eliminar conta:</strong> Na zona de perigo, pode eliminar permanentemente a sua conta e todos os dados</li>
-            </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>💾 Armazenamento de Dados</h2>
-            <p><strong>Importante:</strong> Este site usa localStorage do navegador para armazenar dados.</p>
-            <ul>
-                <li>Todos os dados ficam guardados localmente no seu navegador</li>
-                <li>Os dados persistem entre sessões</li>
-                <li>Se limpar os dados do navegador, perderá toda a informação</li>
-                <li>Os dados não são partilhados entre diferentes navegadores ou dispositivos</li>
-                <li>As imagens são armazenadas em formato Base64</li>
-            </ul>
-            <p><strong>Nota:</strong> Esta é uma implementação de demonstração. Numa versão de produção, os dados seriam armazenados num servidor com base de dados.</p>
+        <!-- Seção 6: Modo Claro/Escuro -->
+        <div class="dashboard-card">
+            <h3>🌓 Modo Claro e Escuro</h3>
+            <div style="padding: 15px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    O ChefGuedes adapta-se às suas preferências visuais com dois modos de visualização.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, #ffffff, #f8f9fa); padding: 25px; border-radius: var(--border-radius); border: 3px solid #dee2e6; text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">☀️</div>
+                        <h4 style="color: #212529; margin-bottom: 10px;">Modo Claro</h4>
+                        <p style="color: #6c757d; font-size: 0.9rem;">Ideal para ambientes bem iluminados</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #1a1d23, #22262e); padding: 25px; border-radius: var(--border-radius); border: 3px solid #3a404a; text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🌙</div>
+                        <h4 style="color: #e9ecef; margin-bottom: 10px;">Modo Escuro</h4>
+                        <p style="color: #adb5bd; font-size: 0.9rem;">Perfeito para reduzir fadiga visual</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 20px; border-radius: var(--border-radius-sm); border-left: 4px solid var(--primary-color); text-align: center;">
+                    <p style="color: var(--text-primary); font-weight: 600; margin-bottom: 12px; font-size: 1.1rem;">
+                        Como Alternar o Tema?
+                    </p>
+                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 15px;">
+                        Procure o botão com o ícone <strong>🌙</strong> (lua) ou <strong>☀️</strong> (sol) no canto superior direito do menu de navegação. Clique para alternar entre os modos claro e escuro.
+                    </p>
+                    <p style="color: var(--text-light); font-size: 0.9rem; font-style: italic;">
+                        A sua preferência será guardada automaticamente!
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>🎨 Estrutura Técnica</h2>
-            <p>O site está organizado de forma modular:</p>
-            <ul>
-                <li><strong>HTML:</strong> Cada página tem a sua estrutura definida</li>
-                <li><strong>CSS:</strong> Estilos básicos para estrutura (sem design elaborado)</li>
-                <li><strong>JavaScript:</strong> 
-                    <ul>
-                        <li><code>main.js</code> - Funções utilitárias globais</li>
-                        <li><code>receitas.js</code> - Gestão de receitas</li>
-                        <li><code>grupos.js</code> - Gestão de grupos e agendamentos</li>
-                        <li><code>dashboard.js</code> - Dashboard e estatísticas</li>
-                        <li><code>perfil.js</code> - Gestão de perfil</li>
+        <!-- Seção 7: Armazenamento -->
+        <div class="dashboard-card" style="border: 2px solid var(--accent-color);">
+            <h3>💾 Armazenamento de Dados</h3>
+            <div style="padding: 15px 0;">
+                <div style="background: rgba(247, 179, 43, 0.1); padding: 20px; border-radius: var(--border-radius-sm); border: 2px solid var(--accent-color); margin-bottom: 20px;">
+                    <p style="color: var(--text-primary); font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.5rem;">⚠️</span> Informação Importante
+                    </p>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        Este site utiliza <strong>localStorage</strong> do navegador para armazenar todos os dados localmente no seu dispositivo.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 12px;">
+                    <strong style="color: var(--success-color);">✅ Vantagens:</strong>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; margin-top: 10px; line-height: 2;">
+                        <li>Os dados persistem entre sessões</li>
+                        <li>Não necessita de conexão à internet após carregamento</li>
+                        <li>Total privacidade - os dados ficam apenas no seu dispositivo</li>
                     </ul>
-                </li>
-            </ul>
-            <p>Esta organização facilita a integração futura de:</p>
-            <ul>
-                <li>Design/estética personalizada</li>
-                <li>Base de dados backend</li>
-                <li>Sistema de autenticação</li>
-                <li>APIs e funcionalidades adicionais</li>
-            </ul>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 15px; border-radius: var(--border-radius-sm);">
+                    <strong style="color: var(--danger-color);">⚠️ Limitações:</strong>
+                    <ul style="color: var(--text-secondary); margin-left: 20px; margin-top: 10px; line-height: 2;">
+                        <li>Se limpar os dados do navegador, perderá toda a informação</li>
+                        <li>Os dados não são partilhados entre diferentes navegadores ou dispositivos</li>
+                        <li>As imagens são armazenadas em formato Base64 (ocupam mais espaço)</li>
+                        <li>Limite de armazenamento típico de 5-10 MB por domínio</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="guide-section">
-            <h2>🚀 Próximos Passos</h2>
-            <p>Este site foi criado como estrutura funcional. Para evoluir para produção:</p>
-            <ol>
-                <li>Adicionar design visual e estética personalizada</li>
-                <li>Implementar backend com base de dados</li>
-                <li>Adicionar sistema de autenticação e utilizadores</li>
-                <li>Implementar upload real de imagens para servidor</li>
-                <li>Adicionar funcionalidades sociais (comentários, likes, etc.)</li>
-                <li>Implementar notificações em tempo real</li>
-                <li>Otimizar para dispositivos móveis</li>
-            </ol>
+        <!-- Seção 8: Dicas -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), rgba(0, 78, 137, 0.05));">
+            <h3>💡 Dicas e Truques</h3>
+            <div style="padding: 15px 0;">
+                <div class="activity-item" style="margin-bottom: 12px;">
+                    <strong style="color: var(--primary-color);">🎨 Personalização Visual</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px; line-height: 1.7;">
+                        Experimente alternar entre o modo claro e escuro em diferentes momentos do dia para descobrir qual prefere. O modo escuro é especialmente útil à noite.
+                    </p>
+                </div>
+
+                <div class="activity-item" style="margin-bottom: 12px;">
+                    <strong style="color: var(--secondary-color);">📱 Organize os Seus Grupos</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px; line-height: 1.7;">
+                        Crie grupos diferentes para ocasiões diferentes: família, amigos, eventos especiais. Assim mantém tudo organizado!
+                    </p>
+                </div>
+
+                <div class="activity-item" style="margin-bottom: 12px;">
+                    <strong style="color: var(--success-color);">📸 Adicione Fotos às Receitas</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px; line-height: 1.7;">
+                        Receitas com fotos são mais apetitosas e fáceis de identificar. Tire uma foto do prato final!
+                    </p>
+                </div>
+
+                <div class="activity-item">
+                    <strong style="color: var(--accent-color);">📅 Planeie com Antecedência</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px; line-height: 1.7;">
+                        Use o agendamento semanal para planear as refeições com antecedência. Poupa tempo e ajuda nas compras!
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <a href="index.html" class="back-link" style="margin-top: 30px;">← Voltar à Página Principal</a>
+        <!-- Botão Voltar -->
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem; padding: 15px 35px;">
+                <span>←</span> Voltar à Página Principal
+            </a>
+        </div>
     </main>
 
     <footer class="footer">
         <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
     </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
