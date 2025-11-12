@@ -15,7 +15,6 @@
             <ul class="nav-menu">
                 <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="pages/explorar-receitas.html">Explorar Receitas</a></li>
-                <li><a href="guia.html">Guia</a></li>
                 <li id="authMenuItems"><a href="login.html">Login</a></li>
             </ul>
         </div>
@@ -25,6 +24,47 @@
         <section class="hero">
             <h1>Bem-vindo ao ChefGuedes</h1>
             <p>Descubra, partilhe e organize as suas receitas favoritas com amigos e família.</p>
+            
+            <!-- Pesquisa Inteligente -->
+            <div class="search-bar-home">
+                <input type="text" id="searchHome" placeholder="Pesquisar receitas..." class="search-input-home">
+                <div class="search-filters">
+                    <select id="filterCategory" class="filter-select-home">
+                        <option value="">Todas as Categorias</option>
+                        <option value="Entrada">Entradas</option>
+                        <option value="Prato Principal">Pratos Principais</option>
+                        <option value="Sobremesa">Sobremesas</option>
+                        <option value="Bebida">Bebidas</option>
+                    </select>
+                    <select id="filterTime" class="filter-select-home">
+                        <option value="">Qualquer Tempo</option>
+                        <option value="15">Até 15 min</option>
+                        <option value="30">Até 30 min</option>
+                        <option value="60">Até 1 hora</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchFromHome()">Pesquisar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Receita em Destaque -->
+        <section class="featured-recipe">
+            <h2>Receita em Destaque</h2>
+            <div id="featuredRecipeCard" class="featured-card">
+                <div class="featured-image">
+                    <div class="featured-placeholder">Imagem da Receita</div>
+                </div>
+                <div class="featured-content">
+                    <h3 id="featuredTitle">Bacalhau à Brás Tradicional</h3>
+                    <p id="featuredDescription">Uma receita clássica portuguesa que combina bacalhau desfiado, batata palha e ovos mexidos. Perfeita para ocasiões especiais ou um jantar em família.</p>
+                    <div class="featured-meta">
+                        <span class="meta-item">Tempo: 45 min</span>
+                        <span class="meta-item">Dificuldade: Média</span>
+                        <span class="meta-item">Categoria: Prato Principal</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewFeaturedRecipe()">Ver Receita Completa</button>
+                </div>
+            </div>
         </section>
 
         <section class="features">
@@ -48,6 +88,89 @@
             </div>
         </section>
 
+        <!-- Top Receitas da Comunidade -->
+        <section class="top-recipes">
+            <h2>Top Receitas da Comunidade</h2>
+            <div class="recipes-grid-home">
+                <div class="recipe-card-home">
+                    <div class="recipe-image-placeholder">Arroz de Marisco</div>
+                    <div class="recipe-card-content">
+                        <h3>Arroz de Marisco</h3>
+                        <p class="recipe-author">Por Maria Silva</p>
+                        <p class="recipe-time">Tempo: 50 min</p>
+                        <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                    </div>
+                </div>
+                <div class="recipe-card-home">
+                    <div class="recipe-image-placeholder">Francesinha</div>
+                    <div class="recipe-card-content">
+                        <h3>Francesinha Autêntica</h3>
+                        <p class="recipe-author">Por João Costa</p>
+                        <p class="recipe-time">Tempo: 40 min</p>
+                        <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                    </div>
+                </div>
+                <div class="recipe-card-home">
+                    <div class="recipe-image-placeholder">Pastel de Nata</div>
+                    <div class="recipe-card-content">
+                        <h3>Pastéis de Nata Caseiros</h3>
+                        <p class="recipe-author">Por Ana Rodrigues</p>
+                        <p class="recipe-time">Tempo: 60 min</p>
+                        <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Receitas Rápidas -->
+        <section class="quick-recipes">
+            <h2>Receitas Rápidas - Até 15 Minutos</h2>
+            <div class="quick-recipes-grid">
+                <div class="quick-recipe-card">
+                    <h4>Omelete com Queijo</h4>
+                    <p>10 minutos</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-secondary btn-sm">Ver</a>
+                </div>
+                <div class="quick-recipe-card">
+                    <h4>Salada Caesar</h4>
+                    <p>12 minutos</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-secondary btn-sm">Ver</a>
+                </div>
+                <div class="quick-recipe-card">
+                    <h4>Wrap de Frango</h4>
+                    <p>15 minutos</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-secondary btn-sm">Ver</a>
+                </div>
+                <div class="quick-recipe-card">
+                    <h4>Smoothie de Frutas</h4>
+                    <p>5 minutos</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-secondary btn-sm">Ver</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sabores da Estação -->
+        <section class="seasonal-recipes">
+            <h2 id="seasonalTitle">Sabores da Estação</h2>
+            <div class="seasonal-grid">
+                <div class="seasonal-card">
+                    <h4>Caldo Verde</h4>
+                    <p>Perfeito para dias frios</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                </div>
+                <div class="seasonal-card">
+                    <h4>Cozido à Portuguesa</h4>
+                    <p>Reconfortante e tradicional</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                </div>
+                <div class="seasonal-card">
+                    <h4>Sopa de Abóbora</h4>
+                    <p>Cremosa e nutritiva</p>
+                    <a href="pages/explorar-receitas.html" class="btn btn-outline">Ver Receita</a>
+                </div>
+            </div>
+        </section>
+
         <section class="quick-access">
             <h2>Acesso Rápido</h2>
             <div class="quick-links">
@@ -59,6 +182,45 @@
                     <h3>Receitas Recentes</h3>
                     <p>Últimas receitas partilhadas</p>
                 </a>
+                <a href="pages/grupos.html" class="quick-link-card">
+                    <h3>Planear a Semana</h3>
+                    <p>Organize as refeições semanais</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Dicas de Cozinha -->
+        <section class="cooking-tips">
+            <h2>Dicas de Cozinha</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4>Temperar Correctamente</h4>
+                    <p>Adicione sal no final do cozimento para realçar os sabores naturais dos ingredientes.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>Facas Afiadas</h4>
+                    <p>Uma faca bem afiada é mais segura e eficiente. Afie regularmente as suas facas de cozinha.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>Mise en Place</h4>
+                    <p>Prepare todos os ingredientes antes de começar a cozinhar para um processo mais organizado.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>Aproveitar Sobras</h4>
+                    <p>Transforme sobras em novas refeições criativas para reduzir desperdício alimentar.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="newsletter-section">
+            <div class="newsletter-container">
+                <h3>Receba Receitas Semanais</h3>
+                <p>Subscreva a nossa newsletter e receba as melhores receitas diretamente no seu email.</p>
+                <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+                    <input type="email" placeholder="O seu email" required class="newsletter-input">
+                    <button type="submit" class="btn btn-primary">Subscrever</button>
+                </form>
             </div>
         </section>
     </main>
@@ -69,5 +231,71 @@
 
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/clear-recipes.js"></script>
+    <script>
+        // Função de pesquisa da home
+        function searchFromHome() {
+            const query = document.getElementById('searchHome').value;
+            const category = document.getElementById('filterCategory').value;
+            const time = document.getElementById('filterTime').value;
+            
+            let url = 'pages/explorar-receitas.html?';
+            if (query) url += 'q=' + encodeURIComponent(query);
+            if (category) url += '&cat=' + encodeURIComponent(category);
+            if (time) url += '&time=' + time;
+            
+            window.location.href = url;
+        }
+
+        // Ver receita em destaque
+        function viewFeaturedRecipe() {
+            // TODAS AS RECEITAS FORAM REMOVIDAS
+            showError('Todas as receitas foram removidas do sistema.');
+        }
+
+        // Newsletter
+        function subscribeNewsletter(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input[type="email"]').value;
+            showSuccess('Obrigado! Subscrição registada para: ' + email);
+            event.target.reset();
+        }
+
+        // Definir título da estação baseado no mês
+        function updateSeasonalTitle() {
+            const month = new Date().getMonth() + 1; // 1-12
+            let season = '';
+            
+            if (month >= 3 && month <= 5) {
+                season = 'Sabores da Primavera';
+            } else if (month >= 6 && month <= 8) {
+                season = 'Sabores do Verão';
+            } else if (month >= 9 && month <= 11) {
+                season = 'Sabores do Outono';
+            } else {
+                season = 'Sabores do Inverno';
+            }
+            
+            const titleElement = document.getElementById('seasonalTitle');
+            if (titleElement) {
+                titleElement.textContent = season;
+            }
+        }
+
+        // Executar ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSeasonalTitle();
+            
+            // REMOVER TODAS AS RECEITAS DO LOCALSTORAGE
+            localStorage.removeItem('chefguedes-recipes');
+        });
+
+        // Permitir pesquisar ao pressionar Enter
+        document.getElementById('searchHome')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchFromHome();
+            }
+        });
+    </script>
 </body>
 </html>
