@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ChefGuedes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
+                <li id="authMenuItems"><a href="../login.html">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Visão geral das suas atividades</p>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="statsRecipes">0</div>
+                <div class="stat-label">Minhas Receitas</div>
+            </div>
+            <div class="stat-card secondary">
+                <div class="stat-number" id="statsGroups">0</div>
+                <div class="stat-label">Meus Grupos</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-number" id="statsFavorites">0</div>
+                <div class="stat-label">Favoritos</div>
+            </div>
+            <div class="stat-card accent">
+                <div class="stat-number" id="statsScheduled">0</div>
+                <div class="stat-label">Refeições Agendadas</div>
+            </div>
+        </div>
+
+        <!-- Acesso Rápido -->
+        <div class="dashboard-card">
+            <h3>Acesso Rápido</h3>
+            <div class="flex gap-2" style="flex-wrap: wrap; margin-top: 20px;">
+                <a href="explorar-receitas.html" class="btn btn-primary">+ Nova Receita</a>
+                <a href="grupos.html" class="btn btn-secondary">+ Novo Grupo</a>
+                <a href="perfil.html" class="btn btn-outline">Editar Perfil</a>
+            </div>
+        </div>
+
+        <!-- Receitas Recentes -->
+        <div class="dashboard-card">
+            <h3>Minhas Receitas Recentes</h3>
+            <div id="recentRecipes" style="margin-top: 20px;">
+                <p style="color: var(--text-secondary);">Nenhuma receita criada ainda.</p>
+            </div>
+        </div>
+
+        <!-- Meus Grupos -->
+        <div class="dashboard-card">
+            <h3>Meus Grupos</h3>
+            <div id="myGroups" style="margin-top: 20px;">
+                <p style="color: var(--text-secondary);">Nenhum grupo criado ainda.</p>
+            </div>
+        </div>
+
+        <!-- Próximas Refeições -->
+        <div class="dashboard-card">
+            <h3>Próximas Refeições Agendadas</h3>
+            <div id="upcomingMeals" style="margin-top: 20px;">
+                <p style="color: var(--text-secondary);">Nenhuma refeição agendada.</p>
+            </div>
+        </div>
+
+        <!-- Atividades Recentes -->
+        <div class="dashboard-card">
+            <h3>Atividades Recentes</h3>
+            <div id="recentActivities" style="margin-top: 20px;">
+                <p style="color: var(--text-secondary);">Nenhuma atividade registada.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/clear-recipes.js"></script>
+    <script>
+        // Proteger rota
+        if (!requireAuth()) {
+            // Será redirecionado para login
+        }
+
+        // Carregar estatísticas
+        function loadStats() {
+            const stats = getUserStats();
+            const currentUser = getCurrentUser();
+            const schedules = getAllSchedules();
+            const userSchedules = schedules.filter(s => s.groupId && getAllGroups().some(g => g.id === s.groupId && g.createdBy === currentUser?.username));
+            
+            document.getElementById('statsRecipes').textContent = stats.recipes;
+            document.getElementById('statsGroups').textContent = stats.groups;
+            document.getElementById('statsFavorites').textContent = stats.favorites;
+            document.getElementById('statsScheduled').textContent = userSchedules.length;
+        }
+
+        <!-- Carregar receitas recentes
+        function loadRecentRecipes() {
+            const container = document.getElementById('recentRecipes');
+            // TODAS AS RECEITAS FORAM REMOVIDAS
+            container.innerHTML = '<p style="color: var(--text-secondary);">Todas as receitas foram removidas do sistema.</p>';
+        }
+
+        // Carregar grupos
+        function loadMyGroups() {
+            const currentUser = getCurrentUser();
+            const allGroups = getAllGroups();
+            const userGroups = allGroups.filter(g => g.createdBy === currentUser?.username);
+            
+            const container = document.getElementById('myGroups');
+            
+            if (userGroups.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Nenhum grupo criado ainda. <a href="grupos.html">Criar primeiro grupo</a></p>';
+                return;
+            }
+            
+            container.innerHTML = userGroups.map(group => `
+                <div class="activity-item">
+                    <strong>${group.name}</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px;">
+                        ${group.members?.length || 0} membros • Criado em ${formatDate(group.createdAt)}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // Carregar próximas refeições
+        function loadUpcomingMeals() {
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            
+            const schedules = getSchedulesByWeek(today, nextWeek);
+            
+            const container = document.getElementById('upcomingMeals');
+            
+            if (schedules.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Nenhuma refeição agendada para os próximos 7 dias.</p>';
+                return;
+            }
+            
+            // TODAS AS RECEITAS FORAM REMOVIDAS - mostrar apenas agendamentos sem receitas
+            container.innerHTML = schedules
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(schedule => {
+                    return `
+                        <div class="meal-item">
+                            <div>
+                                <div class="meal-type">${schedule.mealType}</div>
+                                <div class="meal-recipe">Receita não disponível</div>
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">${formatDate(schedule.date)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        // Carregar atividades recentes
+        function loadRecentActivities() {
+            const activities = getRecentActivities(10);
+            const container = document.getElementById('recentActivities');
+            
+            if (activities.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Nenhuma atividade registada.</p>';
+                return;
+            }
+            
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <strong>${activity.description}</strong>
+                    <p style="color: var(--text-secondary); margin-top: 5px;">
+                        ${formatDateTime(activity.timestamp)}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // Inicializar dashboard
+        loadStats();
+        loadRecentRecipes();
+        loadMyGroups();
+        loadUpcomingMeals();
+        loadRecentActivities();
+    </script>
+</body>
+</html>

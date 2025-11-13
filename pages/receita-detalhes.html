@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receita - ChefGuedes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
+                <li id="authMenuItems"><a href="../login.html">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="receita-detalhes-container" id="receitaDetalhes">
+            <!-- Conteúdo será inserido dinamicamente -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/receitas-portuguesas.js"></script>
+    <script>
+        // Obter ID da receita da URL
+        function getReceitaIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Renderizar detalhes da receita
+        function renderReceitaDetalhes() {
+            const receitaId = getReceitaIdFromURL();
+            
+            if (!receitaId) {
+                document.getElementById('receitaDetalhes').innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <h2 style="color: var(--danger-color); margin-bottom: 20px;">Receita não encontrada</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">A receita que procura não existe ou foi removida.</p>
+                        <a href="../index.html" class="btn btn-primary">Voltar à Página Inicial</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const receita = getReceitaById(receitaId);
+            
+            if (!receita) {
+                document.getElementById('receitaDetalhes').innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <h2 style="color: var(--danger-color); margin-bottom: 20px;">Receita não encontrada</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">A receita que procura não existe ou foi removida.</p>
+                        <a href="../index.html" class="btn btn-primary">Voltar à Página Inicial</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Atualizar título da página
+            document.title = `${receita.titulo} - ChefGuedes`;
+            
+            // Renderizar conteúdo
+            document.getElementById('receitaDetalhes').innerHTML = `
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a href="../index.html">Home</a> / 
+                    <a href="explorar-receitas.html">Explorar Receitas</a> / 
+                    <span>${receita.titulo}</span>
+                </div>
+
+                <!-- Cabeçalho da Receita -->
+                <div class="receita-header">
+                    <h1>${receita.titulo}</h1>
+                    <div class="receita-meta-bar">
+                        <span class="meta-badge">⏱️ ${receita.tempo}</span>
+                        <span class="meta-badge">📊 ${receita.dificuldade}</span>
+                        <span class="meta-badge">🍴 ${receita.categoria}</span>
+                        <span class="meta-badge">👨‍🍳 ${receita.autor}</span>
+                    </div>
+                </div>
+
+                <!-- Imagem Principal -->
+                <div class="receita-image-hero">
+                    <img src="../${receita.imagem}" alt="${receita.titulo}" 
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'receita-placeholder\\'>🍽️ Imagem em breve</div>'">
+                </div>
+
+                <!-- Descrição -->
+                <div class="receita-section">
+                    <p class="receita-description">${receita.descricao}</p>
+                </div>
+
+                <!-- Grid: Ingredientes e Modo de Preparo -->
+                <div class="receita-content-grid">
+                    <!-- Ingredientes -->
+                    <div class="receita-section ingredientes-section">
+                        <h2>🛒 Ingredientes</h2>
+                        <ul class="ingredientes-list">
+                            ${receita.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- Modo de Preparação -->
+                    <div class="receita-section preparo-section">
+                        <h2>👨‍🍳 Modo de Preparação</h2>
+                        <ol class="preparo-list">
+                            ${receita.preparo.map(passo => `<li>${passo}</li>`).join('')}
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="receita-actions">
+                    <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimir Receita</button>
+                    <button class="btn btn-outline" onclick="compartilharReceita()">📤 Compartilhar</button>
+                    <a href="explorar-receitas.html" class="btn btn-primary">Voltar às Receitas</a>
+                </div>
+            `;
+        }
+
+        // Compartilhar receita
+        function compartilharReceita() {
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: url
+                }).then(() => {
+                    showSuccess('Receita compartilhada com sucesso!');
+                }).catch(() => {
+                    copiarLink(url);
+                });
+            } else {
+                copiarLink(url);
+            }
+        }
+
+        function copiarLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showSuccess('Link copiado para a área de transferência!');
+            }).catch(() => {
+                showError('Não foi possível copiar o link.');
+            });
+        }
+
+        // Inicializar ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderReceitaDetalhes();
+        });
+    </script>
+</body>
+</html>

@@ -24,46 +24,18 @@
         <section class="hero">
             <h1>Bem-vindo ao ChefGuedes</h1>
             <p>Descubra, partilhe e organize as suas receitas favoritas com amigos e família.</p>
-            
-            <!-- Pesquisa Inteligente -->
-            <div class="search-bar-home">
-                <input type="text" id="searchHome" placeholder="Pesquisar receitas..." class="search-input-home">
-                <div class="search-filters">
-                    <select id="filterCategory" class="filter-select-home">
-                        <option value="">Todas as Categorias</option>
-                        <option value="Entrada">Entradas</option>
-                        <option value="Prato Principal">Pratos Principais</option>
-                        <option value="Sobremesa">Sobremesas</option>
-                        <option value="Bebida">Bebidas</option>
-                    </select>
-                    <select id="filterTime" class="filter-select-home">
-                        <option value="">Qualquer Tempo</option>
-                        <option value="15">Até 15 min</option>
-                        <option value="30">Até 30 min</option>
-                        <option value="60">Até 1 hora</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="searchFromHome()">Pesquisar</button>
-                </div>
-            </div>
         </section>
 
-        <!-- Receita em Destaque -->
+        <!-- Receitas em Destaque - Hero Slider -->
         <section class="featured-recipe">
-            <h2>Receita em Destaque</h2>
-            <div id="featuredRecipeCard" class="featured-card">
-                <div class="featured-image">
-                    <div class="featured-placeholder">Imagem da Receita</div>
+            <h2>Receitas em Destaque</h2>
+            <div class="hero-slider">
+                <div class="slider-container" id="sliderContainer">
+                    <!-- Slides serão inseridos dinamicamente via JavaScript -->
                 </div>
-                <div class="featured-content">
-                    <h3 id="featuredTitle">Bacalhau à Brás Tradicional</h3>
-                    <p id="featuredDescription">Uma receita clássica portuguesa que combina bacalhau desfiado, batata palha e ovos mexidos. Perfeita para ocasiões especiais ou um jantar em família.</p>
-                    <div class="featured-meta">
-                        <span class="meta-item">Tempo: 45 min</span>
-                        <span class="meta-item">Dificuldade: Média</span>
-                        <span class="meta-item">Categoria: Prato Principal</span>
-                    </div>
-                    <button class="btn btn-primary" onclick="viewFeaturedRecipe()">Ver Receita Completa</button>
-                </div>
+                <button class="slider-btn slider-btn-prev" onclick="previousSlide()" aria-label="Anterior">‹</button>
+                <button class="slider-btn slider-btn-next" onclick="nextSlide()" aria-label="Próximo">›</button>
+                <div class="slider-dots" id="sliderDots"></div>
             </div>
         </section>
 
@@ -232,19 +204,93 @@
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/clear-recipes.js"></script>
+    <script src="js/receitas-portuguesas.js"></script>
     <script>
-        // Função de pesquisa da home
-        function searchFromHome() {
-            const query = document.getElementById('searchHome').value;
-            const category = document.getElementById('filterCategory').value;
-            const time = document.getElementById('filterTime').value;
+        // ===== HERO SLIDER =====
+        let currentSlideIndex = 0;
+        let sliderInterval;
+        let receitasDestaque = [];
+
+        function initializeSlider() {
+            // Obter receitas em destaque
+            receitasDestaque = getReceitasDestaque(5);
             
-            let url = 'pages/explorar-receitas.html?';
-            if (query) url += 'q=' + encodeURIComponent(query);
-            if (category) url += '&cat=' + encodeURIComponent(category);
-            if (time) url += '&time=' + time;
+            const sliderContainer = document.getElementById('sliderContainer');
+            const sliderDots = document.getElementById('sliderDots');
             
-            window.location.href = url;
+            // Criar slides
+            sliderContainer.innerHTML = receitasDestaque.map(receita => `
+                <div class="slider-slide">
+                    <div class="slider-image">
+                        <img src="${receita.imagem}" alt="${receita.titulo}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'slider-image-placeholder\\'>🍽️</div>'">
+                    </div>
+                    <div class="slider-content">
+                        <h3>${receita.titulo}</h3>
+                        <p>${receita.descricao}</p>
+                        <div class="slider-meta">
+                            <span class="slider-meta-item">⏱️ ${receita.tempo}</span>
+                            <span class="slider-meta-item">📊 ${receita.dificuldade}</span>
+                            <span class="slider-meta-item">🍴 ${receita.categoria}</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="viewReceitaCompleta('${receita.id}')">Ver Receita Completa</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Criar dots
+            sliderDots.innerHTML = receitasDestaque.map((_, index) => `
+                <div class="slider-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></div>
+            `).join('');
+            
+            // Iniciar autoplay
+            startSliderAutoplay();
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            updateSlider();
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % receitasDestaque.length;
+            updateSlider();
+            resetSliderAutoplay();
+        }
+
+        function previousSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + receitasDestaque.length) % receitasDestaque.length;
+            updateSlider();
+            resetSliderAutoplay();
+        }
+
+        function updateSlider() {
+            const sliderContainer = document.getElementById('sliderContainer');
+            const dots = document.querySelectorAll('.slider-dot');
+            
+            sliderContainer.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+            
+            dots.forEach((dot, index) => {
+                if (index === currentSlideIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function startSliderAutoplay() {
+            sliderInterval = setInterval(() => {
+                nextSlide();
+            }, 5000); // Muda a cada 5 segundos
+        }
+
+        function resetSliderAutoplay() {
+            clearInterval(sliderInterval);
+            startSliderAutoplay();
+        }
+
+        function viewReceitaCompleta(receitaId) {
+            window.location.href = `pages/receita-detalhes.html?id=${receitaId}`;
         }
 
         // Ver receita em destaque
@@ -285,16 +331,10 @@
         // Executar ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             updateSeasonalTitle();
+            initializeSlider(); // Inicializar slider de receitas
             
             // REMOVER TODAS AS RECEITAS DO LOCALSTORAGE
             localStorage.removeItem('chefguedes-recipes');
-        });
-
-        // Permitir pesquisar ao pressionar Enter
-        document.getElementById('searchHome')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchFromHome();
-            }
         });
     </script>
 </body>

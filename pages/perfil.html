@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - ChefGuedes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
+                <li id="authMenuItems"><a href="../login.html">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Meu Perfil</h1>
+            <p>Gerencie as suas informações e preferências</p>
+        </div>
+
+        <div class="profile-header">
+            <img src="" id="profilePicPreview" class="profile-avatar" alt="Foto de perfil" onclick="document.getElementById('profilePicInput').click()" style="cursor: pointer; background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
+            <div class="profile-info">
+                <h2 id="profileUsername"></h2>
+                <p id="profileEmail"></p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Informações Pessoais</h3>
+            <form id="profileForm" onsubmit="submitProfile(event)" style="margin-top: 20px;">
+                <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                
+                <div class="form-group">
+                    <label for="username">Nome:</label>
+                    <input type="text" id="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefone:</label>
+                    <input type="tel" id="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Biografia:</label>
+                    <textarea id="bio" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Localização:</label>
+                    <input type="text" id="location" placeholder="Cidade, País">
+                </div>
+
+                <h4 style="color: var(--primary-color); margin-top: 30px; margin-bottom: 20px;">Preferências Culinárias</h4>
+
+                <div class="form-group">
+                    <label for="cuisines">Cozinhas Favoritas (separadas por vírgula):</label>
+                    <input type="text" id="cuisines" placeholder="Portuguesa, Italiana, Asiática">
+                </div>
+
+                <div class="form-group">
+                    <label for="restrictions">Restrições Alimentares (separadas por vírgula):</label>
+                    <input type="text" id="restrictions" placeholder="Vegetariano, Sem glúten">
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="newsletter">
+                        Receber newsletter com receitas
+                    </label>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="notifications">
+                        Ativar notificações
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/clear-recipes.js"></script>
+    <script>
+        if (!requireAuth()) {}
+
+        let uploadedImage = null;
+
+        function loadProfile() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('username').value = user.username;
+            document.getElementById('email').value = user.email;
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('bio').value = user.bio || '';
+            document.getElementById('location').value = user.location || '';
+            
+            if (user.profilePicture) {
+                document.getElementById('profilePicPreview').src = user.profilePicture;
+            }
+            
+            if (user.preferences) {
+                document.getElementById('cuisines').value = user.preferences.cuisines?.join(', ') || '';
+                document.getElementById('restrictions').value = user.preferences.restrictions?.join(', ') || '';
+                document.getElementById('newsletter').checked = user.preferences.newsletter || false;
+                document.getElementById('notifications').checked = user.preferences.notifications || false;
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!isValidImageType(file)) {
+                showError('Formato de imagem inválido. Use JPG, PNG, GIF ou WEBP.');
+                return;
+            }
+
+            if (!isValidImageSize(file)) {
+                showError('A imagem é muito grande. Tamanho máximo: 2MB.');
+                return;
+            }
+
+            imageToBase64(file, (base64) => {
+                uploadedImage = base64;
+                document.getElementById('profilePicPreview').src = base64;
+            });
+        }
+
+        function submitProfile(e) {
+            e.preventDefault();
+
+            const cuisinesStr = document.getElementById('cuisines').value;
+            const restrictionsStr = document.getElementById('restrictions').value;
+
+            const updates = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                bio: document.getElementById('bio').value,
+                location: document.getElementById('location').value,
+                preferences: {
+                    cuisines: cuisinesStr ? cuisinesStr.split(',').map(c => c.trim()) : [],
+                    restrictions: restrictionsStr ? restrictionsStr.split(',').map(r => r.trim()) : [],
+                    newsletter: document.getElementById('newsletter').checked,
+                    notifications: document.getElementById('notifications').checked
+                }
+            };
+
+            if (uploadedImage) {
+                updates.profilePicture = uploadedImage;
+            }
+
+            const result = updateUserProfile(updates);
+
+            if (result.success) {
+                showSuccess('Perfil atualizado com sucesso!');
+                loadProfile();
+                updateAuthMenu();
+            } else {
+                showError(result.message);
+            }
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

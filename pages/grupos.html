@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupos - ChefGuedes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
+                <li id="authMenuItems"><a href="../login.html">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Meus Grupos</h1>
+            <p>Organize grupos e planeie refeições em conjunto</p>
+        </div>
+
+        <button class="btn btn-primary mb-3" onclick="openModal('modalNovoGrupo')">+ Criar Novo Grupo</button>
+
+        <div id="groupsList"></div>
+
+        <!-- Tabs para grupo selecionado -->
+        <div id="groupDetails" style="display: none;">
+            <div class="dashboard-card" style="margin-top: 30px;">
+                <h3 id="groupName"></h3>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('membros')">Membros</button>
+                    <button class="tab" onclick="switchTab('agendamento')">Agendamento Semanal</button>
+                </div>
+
+                <div id="tabMembros" class="tab-content active"></div>
+                <div id="tabAgendamento" class="tab-content"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Modal Novo Grupo -->
+    <div id="modalNovoGrupo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Criar Novo Grupo</h3>
+                <button class="modal-close" onclick="closeModal('modalNovoGrupo')">&times;</button>
+            </div>
+            <form onsubmit="submitGroup(event)">
+                <div class="form-group">
+                    <label for="groupName">Nome do Grupo:</label>
+                    <input type="text" id="groupNameInput" required>
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Descrição:</label>
+                    <textarea id="groupDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="groupMembers">Emails dos Membros (separados por vírgula):</label>
+                    <input type="text" id="groupMembers" placeholder="email1@example.com, email2@example.com">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalNovoGrupo')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Grupo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Refeição -->
+    <div id="modalAddMeal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar Refeição</h3>
+                <button class="modal-close" onclick="closeModal('modalAddMeal')">&times;</button>
+            </div>
+            <form onsubmit="submitMeal(event)">
+                <input type="hidden" id="mealDate">
+                <div class="form-group">
+                    <label>Tipo de Refeição:</label>
+                    <select id="mealType" required>
+                        <option value="Pequeno-almoço">Pequeno-almoço</option>
+                        <option value="Almoço">Almoço</option>
+                        <option value="Jantar">Jantar</option>
+                        <option value="Lanche">Lanche</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Receita:</label>
+                    <select id="mealRecipe" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Notas (opcional):</label>
+                    <textarea id="mealNotes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalAddMeal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/clear-recipes.js"></script>
+    <script>
+        if (!requireAuth()) {}
+
+        let currentGroupId = null;
+        let currentWeekStart = getWeekStart(new Date());
+
+        function loadGroups() {
+            const groups = getAllGroups();
+            const currentUser = getCurrentUser();
+            const userGroups = groups.filter(g => g.createdBy === currentUser?.username);
+            
+            const container = document.getElementById('groupsList');
+            
+            if (userGroups.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Ainda não criou nenhum grupo. Clique em "Criar Novo Grupo" para começar.</p>';
+                return;
+            }
+            
+            container.innerHTML = userGroups.map(group => `
+                <div class="dashboard-card" style="cursor: pointer;" onclick="selectGroup('${group.id}')">
+                    <h3>${group.name}</h3>
+                    <p style="color: var(--text-secondary);">${group.description || 'Sem descrição'}</p>
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">${group.members?.length || 0} membros</p>
+                </div>
+            `).join('');
+        }
+
+        function submitGroup(e) {
+            e.preventDefault();
+            
+            const membersString = document.getElementById('groupMembers').value;
+            const members = membersString ? membersString.split(',').map(m => m.trim()) : [];
+            
+            const group = {
+                name: document.getElementById('groupNameInput').value,
+                description: document.getElementById('groupDescription').value,
+                members: members
+            };
+            
+            saveGroup(group);
+            addActivity('group_create', `Criou o grupo: ${group.name}`);
+            closeModal('modalNovoGrupo');
+            e.target.reset();
+            loadGroups();
+            showSuccess('Grupo criado com sucesso!');
+        }
+
+        function selectGroup(groupId) {
+            currentGroupId = groupId;
+            const group = getGroupById(groupId);
+            
+            document.getElementById('groupDetails').style.display = 'block';
+            document.getElementById('groupName').textContent = group.name;
+            
+            switchTab('membros');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            
+            if (tabName === 'membros') {
+                document.getElementById('tabMembros').classList.add('active');
+                loadMembers();
+            } else if (tabName === 'agendamento') {
+                document.getElementById('tabAgendamento').classList.add('active');
+                loadSchedule();
+            }
+        }
+
+        function loadMembers() {
+            const group = getGroupById(currentGroupId);
+            const container = document.getElementById('tabMembros');
+            
+            if (!group.members || group.members.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); margin-top: 20px;">Nenhum membro adicionado.</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="margin-top: 20px;">
+                    ${group.members.map(member => `
+                        <div class="activity-item">
+                            <strong>${member}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function loadSchedule() {
+            const container = document.getElementById('tabAgendamento');
+            const weekDays = getWeekDays(currentWeekStart);
+            const weekEnd = getWeekEnd(currentWeekStart);
+            const schedules = getSchedulesByWeek(currentWeekStart, weekEnd).filter(s => s.groupId === currentGroupId);
+            
+            container.innerHTML = `
+                <div class="week-navigation">
+                    <button class="btn btn-outline" onclick="changeWeek(-1)">← Semana Anterior</button>
+                    <h3>${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}</h3>
+                    <button class="btn btn-outline" onclick="changeWeek(1)">Próxima Semana →</button>
+                </div>
+                <div class="schedule-grid">
+                    ${weekDays.map(day => {
+                        const dateStr = getDateForInput(day);
+                        const daySchedules = schedules.filter(s => s.date === dateStr);
+                        
+                        return `
+                            <div class="day-card">
+                                <h4>${getDayName(day)} - ${day.getDate()}/${day.getMonth() + 1}</h4>
+                                ${daySchedules.map(schedule => {
+                                    // TODAS AS RECEITAS FORAM REMOVIDAS
+                                    return `
+                                        <div class="meal-item">
+                                            <div>
+                                                <div class="meal-type">${schedule.mealType}</div>
+                                                <div class="meal-recipe">Receita não disponível</div>
+                                                ${schedule.notes ? `<div class="meal-notes">${schedule.notes}</div>` : ''}
+                                            </div>
+                                            <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.9rem;" onclick="removeSchedule('${schedule.id}')">✕</button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="openAddMeal('${dateStr}')">+ Adicionar</button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function changeWeek(direction) {
+            const current = new Date(currentWeekStart);
+            current.setDate(current.getDate() + (direction * 7));
+            currentWeekStart = getWeekStart(current);
+            loadSchedule();
+        }
+
+        function openAddMeal(dateStr) {
+            document.getElementById('mealDate').value = dateStr;
+            
+            // TODAS AS RECEITAS FORAM REMOVIDAS - não há receitas para selecionar
+            const select = document.getElementById('mealRecipe');
+            select.innerHTML = '<option value="">Nenhuma receita disponível</option>';
+            
+            // Desabilitar o formulário pois não há receitas
+            showError('Não há receitas disponíveis no sistema.');
+            return;
+        }
+
+        function submitMeal(e) {
+            e.preventDefault();
+            
+            const schedule = {
+                groupId: currentGroupId,
+                date: document.getElementById('mealDate').value,
+                mealType: document.getElementById('mealType').value,
+                recipeId: document.getElementById('mealRecipe').value,
+                notes: document.getElementById('mealNotes').value
+            };
+            
+            saveSchedule(schedule);
+            addActivity('schedule_add', `Agendou uma refeição`);
+            closeModal('modalAddMeal');
+            e.target.reset();
+            loadSchedule();
+            showSuccess('Refeição agendada!');
+        }
+
+        function removeSchedule(scheduleId) {
+            if (confirm('Remover esta refeição do agendamento?')) {
+                deleteSchedule(scheduleId);
+                loadSchedule();
+                showSuccess('Refeição removida.');
+            }
+        }
+
+        loadGroups();
+    </script>
+</body>
+</html>
