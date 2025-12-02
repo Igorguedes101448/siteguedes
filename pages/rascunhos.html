@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rascunhos - ChefGuedes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">ChefGuedes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
+                <li id="authMenuItems"></li>
+            </ul>
+            <div id="profileDropdown" class="profile-dropdown" style="display: none;">
+                <button class="profile-btn" onclick="toggleProfileMenu()">
+                    <img id="profileImage" src="" alt="Perfil" class="profile-image">
+                    <span id="profileName"></span>
+                </button>
+                <div id="profileMenu" class="profile-menu">
+                    <a href="perfil.html">Meu Perfil</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="#" onclick="logout(); return false;">Sair</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Meus Rascunhos</h1>
+            <p>Receitas que ainda não foram publicadas</p>
+        </div>
+
+        <div id="draftsGrid" class="recipes-grid"></div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 ChefGuedes. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../js/auth-api.js"></script>
+    <script src="../js/main-api.js"></script>
+    <script>
+        // Verificar autenticação
+        (async function() {
+            await requireAuth();
+            loadDrafts();
+        })();
+
+        async function loadDrafts() {
+            try {
+                const response = await fetch(`${API_BASE}/recipes.php?drafts=true`, {
+                    headers: {
+                        'Authorization': `Bearer ${getSessionToken()}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data.recipes) {
+                    renderDrafts(result.data.recipes);
+                } else {
+                    document.getElementById('draftsGrid').innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">Nenhum rascunho encontrado.</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar rascunhos:', error);
+                showError('Erro ao carregar rascunhos.');
+            }
+        }
+
+        function renderDrafts(drafts) {
+            const grid = document.getElementById('draftsGrid');
+
+            if (drafts.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">Nenhum rascunho encontrado.</p>';
+                return;
+            }
+
+            grid.innerHTML = drafts.map(draft => `
+                <div class="recipe-card">
+                    ${draft.image ? `<img src="${draft.image}" alt="${draft.title}">` : '<div class="recipe-image-placeholder">📝</div>'}
+                    <div class="recipe-card-body">
+                        <span class="recipe-category">${draft.category}</span>
+                        <h3>${draft.title}</h3>
+                        <p class="recipe-description">${draft.description || 'Sem descrição'}</p>
+                        <div class="recipe-meta">
+                            <span>⏱️ ${draft.prep_time ? draft.prep_time + ' min' : 'N/A'}</span>
+                            <span>📊 ${draft.difficulty}</span>
+                        </div>
+                        <div class="recipe-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="btn btn-primary btn-sm" onclick="editDraft(${draft.id})">Editar</button>
+                            <button class="btn btn-success btn-sm" onclick="publishDraft(${draft.id})">Publicar</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteDraft(${draft.id})">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editDraft(id) {
+            window.location.href = `nova-receita.html?draft=${id}`;
+        }
+
+        async function publishDraft(id) {
+            if (!confirm('Tem certeza que deseja publicar este rascunho?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/recipes.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'publish_draft',
+                        sessionToken: getSessionToken(),
+                        recipeId: id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Rascunho publicado com sucesso!');
+                    loadDrafts();
+                } else {
+                    showError(result.message || 'Erro ao publicar rascunho.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro de conexão ao publicar rascunho.');
+            }
+        }
+
+        async function deleteDraft(id) {
+            if (!confirm('Tem certeza que deseja eliminar este rascunho?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/recipes.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        sessionToken: getSessionToken(),
+                        recipeId: id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Rascunho eliminado com sucesso!');
+                    loadDrafts();
+                } else {
+                    showError(result.message || 'Erro ao eliminar rascunho.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro de conexão ao eliminar rascunho.');
+            }
+        }
+    </script>
+</body>
+</html>

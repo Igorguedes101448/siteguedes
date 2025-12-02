@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
     createThemeToggle();
     updateAuthMenu();
     setupUserDropdown();
+    
+    // REMOVER TODAS AS RECEITAS DO LOCALSTORAGE
+    localStorage.removeItem('chefguedes-recipes');
 });
 
 // Função para inicializar o tema
@@ -176,62 +179,32 @@ function getFromStorage(key) {
 
 // Obter todas as receitas
 function getAllRecipes() {
-    return getFromStorage('chefguedes-recipes') || [];
+    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
+    return [];
 }
 
 // Salvar receita
 function saveRecipe(recipe) {
-    const recipes = getAllRecipes();
-    
-    if (recipe.id) {
-        // Atualizar receita existente
-        const index = recipes.findIndex(r => r.id === recipe.id);
-        if (index !== -1) {
-            recipes[index] = recipe;
-        }
-    } else {
-        // Nova receita
-        recipe.id = Date.now().toString();
-        recipe.createdAt = new Date().toISOString();
-        recipe.author = getCurrentUser()?.username || 'Anônimo';
-        recipes.push(recipe);
-    }
-    
-    saveToStorage('chefguedes-recipes', recipes);
-    return recipe;
+    // FUNÇÃO DESABILITADA - NÃO É POSSÍVEL CRIAR RECEITAS
+    return null;
 }
 
 // Deletar receita
 function deleteRecipe(recipeId) {
-    const recipes = getAllRecipes();
-    const filtered = recipes.filter(r => r.id !== recipeId);
-    saveToStorage('chefguedes-recipes', filtered);
+    // FUNÇÃO DESABILITADA - NÃO HÁ RECEITAS PARA DELETAR
+    return;
 }
 
 // Obter receita por ID
 function getRecipeById(recipeId) {
-    const recipes = getAllRecipes();
-    return recipes.find(r => r.id === recipeId);
+    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
+    return null;
 }
 
 // Pesquisar receitas
 function searchRecipes(query, category = '') {
-    const recipes = getAllRecipes();
-    let filtered = recipes;
-    
-    if (query) {
-        const lowerQuery = query.toLowerCase();
-        filtered = filtered.filter(r => 
-            r.title.toLowerCase().includes(lowerQuery) ||
-            r.description.toLowerCase().includes(lowerQuery)
-        );
-    }
-    
-    if (category && category !== 'Todas') {
-        filtered = filtered.filter(r => r.category === category);
-    }
-    
-    return filtered;
+    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
+    return [];
 }
 
 // ===== GERENCIAMENTO DE GRUPOS =====
@@ -538,7 +511,6 @@ document.head.appendChild(style);
 
 // Obter estatísticas do usuário
 function getUserStats() {
-    const recipes = getAllRecipes();
     const groups = getAllGroups();
     const currentUser = getCurrentUser();
     
@@ -546,12 +518,11 @@ function getUserStats() {
         return { recipes: 0, groups: 0, favorites: 0 };
     }
     
-    const userRecipes = recipes.filter(r => r.author === currentUser.username);
     const userGroups = groups.filter(g => g.createdBy === currentUser.username);
     
     return {
-        recipes: userRecipes.length,
+        recipes: 0, // TODAS AS RECEITAS FORAM REMOVIDAS
         groups: userGroups.length,
-        favorites: currentUser.favorites?.length || 0
+        favorites: 0
     };
 }

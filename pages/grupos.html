@@ -15,8 +15,34 @@
             <ul class="nav-menu">
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="explorar-receitas.html">Explorar Receitas</a></li>
-                <li id="authMenuItems"><a href="../login.html">Login</a></li>
+                <li id="authMenuItems"></li>
             </ul>
+            <div id="notificationDropdown" class="notification-dropdown" style="display: none;">
+                <button class="notification-btn" onclick="toggleNotifications()">
+                    🔔
+                    <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                </button>
+                <div id="notificationMenu" class="notification-menu">
+                    <div class="notification-header">
+                        <h4>Notificações</h4>
+                        <button onclick="markAllRead()" style="background: none; border: none; color: var(--primary-color); cursor: pointer; font-size: 0.9rem;">Marcar todas como lidas</button>
+                    </div>
+                    <div id="notificationList" class="notification-list">
+                        <p style="text-align: center; color: var(--text-secondary); padding: 20px;">Sem notificações</p>
+                    </div>
+                </div>
+            </div>
+            <div id="profileDropdown" class="profile-dropdown" style="display: none;">
+                <button class="profile-btn" onclick="toggleProfileMenu()">
+                    <img id="profileImage" src="" alt="Perfil" class="profile-image">
+                    <span id="profileName"></span>
+                </button>
+                <div id="profileMenu" class="profile-menu">
+                    <a href="perfil.html">Meu Perfil</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="#" onclick="logout(); return false;">Sair</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -64,11 +90,7 @@
                 </div>
                 <div class="form-group">
                     <label for="groupDescription">Descrição:</label>
-                    <textarea id="groupDescription"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="groupMembers">Emails dos Membros (separados por vírgula):</label>
-                    <input type="text" id="groupMembers" placeholder="email1@example.com, email2@example.com">
+                    <textarea id="groupDescription" rows="3" placeholder="Descrição opcional do grupo..."></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-outline" onclick="closeModal('modalNovoGrupo')">Cancelar</button>
@@ -112,19 +134,25 @@
         </div>
     </div>
 
-    <script src="../js/main.js"></script>
-    <script src="../js/auth.js"></script>
+    <script src="../js/auth-api.js"></script>
+    <script src="../js/main-api.js"></script>
     <script src="../js/clear-recipes.js"></script>
     <script>
-        if (!requireAuth()) {}
+        // Proteger rota
+        (async function() {
+            await requireAuth();
+            loadGroups();
+        })();
 
         let currentGroupId = null;
         let currentWeekStart = getWeekStart(new Date());
 
-        function loadGroups() {
-            const groups = getAllGroups();
-            const currentUser = getCurrentUser();
-            const userGroups = groups.filter(g => g.createdBy === currentUser?.username);
+        async function loadGroups() {
+            const groups = await getAllGroups();
+            const currentUser = await getCurrentUser();
+            
+            // Filtrar grupos criados pelo utilizador atual
+            const userGroups = groups.filter(g => g.created_by === currentUser?.id);
             
             const container = document.getElementById('groupsList');
             
@@ -137,34 +165,39 @@
                 <div class="dashboard-card" style="cursor: pointer;" onclick="selectGroup('${group.id}')">
                     <h3>${group.name}</h3>
                     <p style="color: var(--text-secondary);">${group.description || 'Sem descrição'}</p>
-                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">${group.members?.length || 0} membros</p>
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">${group.member_count || 0} membros</p>
                 </div>
             `).join('');
         }
 
-        function submitGroup(e) {
+        async function submitGroup(e) {
             e.preventDefault();
             
-            const membersString = document.getElementById('groupMembers').value;
-            const members = membersString ? membersString.split(',').map(m => m.trim()) : [];
-            
-            const group = {
+            const groupData = {
                 name: document.getElementById('groupNameInput').value,
-                description: document.getElementById('groupDescription').value,
-                members: members
+                description: document.getElementById('groupDescription').value
             };
             
-            saveGroup(group);
-            addActivity('group_create', `Criou o grupo: ${group.name}`);
-            closeModal('modalNovoGrupo');
-            e.target.reset();
-            loadGroups();
-            showSuccess('Grupo criado com sucesso!');
+            const result = await saveGroup(groupData);
+            
+            if (result.success) {
+                closeModal('modalNovoGrupo');
+                e.target.reset();
+                await loadGroups();
+                showSuccess('Grupo criado com sucesso!');
+            } else {
+                showError(result.message || 'Erro ao criar grupo.');
+            }
         }
 
-        function selectGroup(groupId) {
+        async function selectGroup(groupId) {
             currentGroupId = groupId;
-            const group = getGroupById(groupId);
+            const group = await getGroupById(groupId);
+            
+            if (!group) {
+                showError('Grupo não encontrado.');
+                return;
+            }
             
             document.getElementById('groupDetails').style.display = 'block';
             document.getElementById('groupName').textContent = group.name;
@@ -187,22 +220,26 @@
             }
         }
 
-        function loadMembers() {
-            const group = getGroupById(currentGroupId);
+        async function loadMembers() {
+            const group = await getGroupById(currentGroupId);
             const container = document.getElementById('tabMembros');
             
-            if (!group.members || group.members.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); margin-top: 20px;">Nenhum membro adicionado.</p>';
+            if (!group) {
+                container.innerHTML = '<p style="color: var(--text-secondary); margin-top: 20px;">Erro ao carregar membros.</p>';
                 return;
             }
             
+            // Por enquanto, mostrar apenas que o criador é membro
+            // No futuro, pode ser expandido para incluir sistema de convites
             container.innerHTML = `
                 <div style="margin-top: 20px;">
-                    ${group.members.map(member => `
-                        <div class="activity-item">
-                            <strong>${member}</strong>
-                        </div>
-                    `).join('')}
+                    <div class="activity-item">
+                        <strong>${group.created_by_name || 'Criador'}</strong>
+                        <span style="color: var(--primary-color); font-size: 0.9rem; margin-left: 10px;">Admin</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-top: 20px; font-size: 0.9rem;">
+                        Sistema de convite de membros será implementado em breve.
+                    </p>
                 </div>
             `;
         }
@@ -293,8 +330,6 @@
                 showSuccess('Refeição removida.');
             }
         }
-
-        loadGroups();
     </script>
 </body>
 </html>
