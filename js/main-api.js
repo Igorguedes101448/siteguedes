@@ -359,6 +359,104 @@ async function getGroupById(groupId) {
     return groups.find(g => g.id == groupId);
 }
 
+// Obter membros do grupo
+async function getGroupMembers(groupId) {
+    try {
+        const response = await fetch(`${API_BASE}/groups.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'get_members',
+                groupId: groupId
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success && result.data.members) {
+            return result.data.members;
+        }
+        
+        return [];
+    } catch (error) {
+        console.error('Erro ao obter membros:', error);
+        return [];
+    }
+}
+
+// Adicionar membro ao grupo por user_code
+async function addGroupMember(groupId, userCode) {
+    const sessionToken = getSessionToken();
+    
+    if (!sessionToken) {
+        return {
+            success: false,
+            message: 'Utilizador não está logado.'
+        };
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/groups.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'add_member',
+                sessionToken: sessionToken,
+                groupId: groupId,
+                userCode: userCode
+            })
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao adicionar membro:', error);
+        return {
+            success: false,
+            message: 'Erro de conexão com o servidor.'
+        };
+    }
+}
+
+// Remover membro do grupo
+async function removeGroupMember(groupId, userId) {
+    const sessionToken = getSessionToken();
+    
+    if (!sessionToken) {
+        return {
+            success: false,
+            message: 'Utilizador não está logado.'
+        };
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/groups.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'remove_member',
+                sessionToken: sessionToken,
+                groupId: groupId,
+                userId: userId
+            })
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao remover membro:', error);
+        return {
+            success: false,
+            message: 'Erro de conexão com o servidor.'
+        };
+    }
+}
+
 // ===== FUNÇÕES DE DATA =====
 
 // Formatar data

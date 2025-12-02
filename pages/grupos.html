@@ -134,6 +134,36 @@
         </div>
     </div>
 
+    <!-- Modal Adicionar Membro -->
+    <div id="modalAddMember" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar Membro ao Grupo</h3>
+                <button class="modal-close" onclick="closeModal('modalAddMember')">&times;</button>
+            </div>
+            <form onsubmit="submitAddMember(event)">
+                <div class="form-group">
+                    <label for="memberCode">Código do Utilizador:</label>
+                    <input 
+                        type="text" 
+                        id="memberCode" 
+                        required 
+                        placeholder="Ex: ABC123"
+                        maxlength="6"
+                        style="text-transform: uppercase; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px;"
+                        oninput="this.value = this.value.toUpperCase()">
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                        Insira o código de 6 caracteres do utilizador que deseja adicionar
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalAddMember')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Membro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/auth-api.js"></script>
     <script src="../js/main-api.js"></script>
     <script src="../js/clear-recipes.js"></script>
@@ -221,25 +251,35 @@
         }
 
         async function loadMembers() {
-            const group = await getGroupById(currentGroupId);
+            const members = await getGroupMembers(currentGroupId);
             const container = document.getElementById('tabMembros');
             
-            if (!group) {
-                container.innerHTML = '<p style="color: var(--text-secondary); margin-top: 20px;">Erro ao carregar membros.</p>';
+            if (!members || members.length === 0) {
+                container.innerHTML = `
+                    <div style="margin-top: 20px;">
+                        <p style="color: var(--text-secondary);">Nenhum membro no grupo.</p>
+                        <button class="btn btn-primary" style="margin-top: 15px;" onclick="openModal('modalAddMember')">+ Adicionar Membro</button>
+                    </div>
+                `;
                 return;
             }
             
-            // Por enquanto, mostrar apenas que o criador é membro
-            // No futuro, pode ser expandido para incluir sistema de convites
             container.innerHTML = `
                 <div style="margin-top: 20px;">
-                    <div class="activity-item">
-                        <strong>${group.created_by_name || 'Criador'}</strong>
-                        <span style="color: var(--primary-color); font-size: 0.9rem; margin-left: 10px;">Admin</span>
-                    </div>
-                    <p style="color: var(--text-secondary); margin-top: 20px; font-size: 0.9rem;">
-                        Sistema de convite de membros será implementado em breve.
-                    </p>
+                    <button class="btn btn-primary" style="margin-bottom: 20px;" onclick="openModal('modalAddMember')">+ Adicionar Membro</button>
+                    ${members.map(member => `
+                        <div class="activity-item" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${member.username}</strong>
+                                <span style="color: ${member.role === 'admin' ? 'var(--primary-color)' : 'var(--text-secondary)'}; font-size: 0.9rem; margin-left: 10px;">
+                                    ${member.role === 'admin' ? 'Admin' : 'Membro'}
+                                </span>
+                            </div>
+                            ${member.role !== 'admin' ? `
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.9rem;" onclick="removeMember(${member.user_id})">Remover</button>
+                            ` : ''}
+                        </div>
+                    `).join('')}
                 </div>
             `;
         }
@@ -328,6 +368,43 @@
                 deleteSchedule(scheduleId);
                 loadSchedule();
                 showSuccess('Refeição removida.');
+            }
+        }
+
+        async function submitAddMember(e) {
+            e.preventDefault();
+            
+            const userCode = document.getElementById('memberCode').value.trim().toUpperCase();
+            
+            if (userCode.length !== 6) {
+                showError('O código deve ter exatamente 6 caracteres.');
+                return;
+            }
+            
+            const result = await addGroupMember(currentGroupId, userCode);
+            
+            if (result.success) {
+                closeModal('modalAddMember');
+                document.getElementById('memberCode').value = '';
+                await loadMembers();
+                showSuccess('Membro adicionado com sucesso!');
+            } else {
+                showError(result.message || 'Erro ao adicionar membro.');
+            }
+        }
+
+        async function removeMember(userId) {
+            if (!confirm('Tem certeza que deseja remover este membro do grupo?')) {
+                return;
+            }
+            
+            const result = await removeGroupMember(currentGroupId, userId);
+            
+            if (result.success) {
+                await loadMembers();
+                showSuccess('Membro removido com sucesso!');
+            } else {
+                showError(result.message || 'Erro ao remover membro.');
             }
         }
     </script>

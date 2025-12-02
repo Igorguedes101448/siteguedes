@@ -60,6 +60,20 @@
             </div>
         </div>
 
+        <!-- Código do Utilizador -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 30px;">
+            <h3 style="color: white; margin-bottom: 10px;">🔑 Seu Código de Utilizador</h3>
+            <p style="opacity: 0.9; margin-bottom: 15px; font-size: 0.95rem;">Use este código para participar em grupos ou partilhe-o com amigos</p>
+            <div style="display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                <div style="flex: 1;">
+                    <div style="font-size: 2rem; font-weight: bold; letter-spacing: 4px; font-family: 'Courier New', monospace;" id="userCodeDisplay">------</div>
+                </div>
+                <button onclick="copyUserCode()" class="btn" style="background: white; color: #667eea; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    📋 Copiar
+                </button>
+            </div>
+        </div>
+
         <div class="dashboard-card">
             <h3>Informações Pessoais</h3>
             <form id="profileForm" onsubmit="submitProfile(event)" style="margin-top: 20px;">
@@ -146,6 +160,9 @@
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('username').value = user.username;
             document.getElementById('email').value = user.email;
+            
+            // Mostrar código de utilizador
+            document.getElementById('userCodeDisplay').textContent = user.user_code || '------';
             document.getElementById('phone').value = user.phone || '';
             document.getElementById('bio').value = user.bio || '';
             document.getElementById('location').value = user.location || '';
@@ -226,6 +243,30 @@
                 await updateAuthMenu();
             } else {
                 showError(result.message);
+            }
+        }
+
+        async function copyUserCode() {
+            const user = await getCurrentUser();
+            const userCode = user?.user_code;
+            
+            if (!userCode) {
+                showError('Código de utilizador não disponível.');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(userCode);
+                showSuccess('Código copiado para a área de transferência!');
+            } catch (err) {
+                // Fallback para navegadores antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = userCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showSuccess('Código copiado!');
             }
         }
     </script>
