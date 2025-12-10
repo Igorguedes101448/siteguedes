@@ -67,7 +67,7 @@
         }
 
         // Renderizar detalhes da receita
-        function renderReceitaDetalhes() {
+        async function renderReceitaDetalhes() {
             const receitaId = getReceitaIdFromURL();
             
             if (!receitaId) {
@@ -81,7 +81,18 @@
                 return;
             }
             
-            const receita = getReceitaById(receitaId);
+            // Verificar se é uma receita portuguesa (ID começa com 'rp') ou da base de dados
+            let receita = null;
+            let isReceitaPortuguesa = false;
+            
+            if (receitaId.startsWith('rp')) {
+                // Buscar nas receitas portuguesas
+                receita = getReceitaById(receitaId);
+                isReceitaPortuguesa = true;
+            } else {
+                // Buscar na base de dados
+                receita = await getRecipeById(receitaId);
+            }
             
             if (!receita) {
                 document.getElementById('receitaDetalhes').innerHTML = `
@@ -94,8 +105,41 @@
                 return;
             }
             
+            // Processar dados dependendo da origem
+            let ingredientesList, instrucoesList, tempoTotal, titulo, categoria, descricao, autor, imagem, dificuldade;
+            
+            if (isReceitaPortuguesa) {
+                // Receita portuguesa (já vem com arrays)
+                ingredientesList = receita.ingredientes;
+                instrucoesList = receita.preparo;
+                tempoTotal = receita.tempo;
+                titulo = receita.titulo;
+                categoria = receita.categoria;
+                descricao = receita.descricao;
+                autor = receita.autor;
+                imagem = '../' + receita.imagem;
+                dificuldade = receita.dificuldade;
+            } else {
+                // Receita da base de dados (pode precisar converter string para array)
+                ingredientesList = Array.isArray(receita.ingredients) 
+                    ? receita.ingredients 
+                    : receita.ingredients.split('\n').filter(i => i.trim());
+                
+                instrucoesList = Array.isArray(receita.instructions)
+                    ? receita.instructions
+                    : receita.instructions.split('\n').filter(i => i.trim());
+                
+                tempoTotal = receita.prep_time ? `${receita.prep_time} min` : 'Não especificado';
+                titulo = receita.title;
+                categoria = receita.category;
+                descricao = receita.description;
+                autor = receita.author_name || 'ChefGuedes';
+                imagem = receita.image;
+                dificuldade = receita.difficulty || 'Média';
+            }
+            
             // Atualizar título da página
-            document.title = `${receita.titulo} - ChefGuedes`;
+            document.title = `${titulo} - ChefGuedes`;
             
             // Renderizar conteúdo
             document.getElementById('receitaDetalhes').innerHTML = `
@@ -103,29 +147,28 @@
                 <div class="breadcrumb">
                     <a href="../index.html">Home</a> / 
                     <a href="explorar-receitas.html">Explorar Receitas</a> / 
-                    <span>${receita.titulo}</span>
+                    <span>${titulo}</span>
                 </div>
 
                 <!-- Cabeçalho da Receita -->
                 <div class="receita-header">
-                    <h1>${receita.titulo}</h1>
+                    <h1>${titulo}</h1>
                     <div class="receita-meta-bar">
-                        <span class="meta-badge">⏱️ ${receita.tempo}</span>
-                        <span class="meta-badge">📊 ${receita.dificuldade}</span>
-                        <span class="meta-badge">🍴 ${receita.categoria}</span>
-                        <span class="meta-badge">👨‍🍳 ${receita.autor}</span>
+                        <span class="meta-badge">⏱️ ${tempoTotal}</span>
+                        <span class="meta-badge">📊 ${dificuldade}</span>
+                        <span class="meta-badge">🍴 ${categoria}</span>
+                        <span class="meta-badge">👨‍🍳 ${autor}</span>
                     </div>
                 </div>
 
                 <!-- Imagem Principal -->
                 <div class="receita-image-hero">
-                    <img src="../${receita.imagem}" alt="${receita.titulo}" 
-                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'receita-placeholder\\'>🍽️ Imagem em breve</div>'">
+                    ${imagem ? `<img src="${imagem}" alt="${titulo}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'receita-placeholder\\'>🍽️ Imagem em breve</div>'">` : '<div class="receita-placeholder">🍽️ Imagem em breve</div>'}
                 </div>
 
                 <!-- Descrição -->
                 <div class="receita-section">
-                    <p class="receita-description">${receita.descricao}</p>
+                    <p class="receita-description">${descricao}</p>
                 </div>
 
                 <!-- Grid: Ingredientes e Modo de Preparo -->
@@ -134,7 +177,7 @@
                     <div class="receita-section ingredientes-section">
                         <h2>🛒 Ingredientes</h2>
                         <ul class="ingredientes-list">
-                            ${receita.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+                            ${ingredientesList.map(ing => `<li>${ing}</li>`).join('')}
                         </ul>
                     </div>
 
@@ -142,7 +185,7 @@
                     <div class="receita-section preparo-section">
                         <h2>👨‍🍳 Modo de Preparação</h2>
                         <ol class="preparo-list">
-                            ${receita.preparo.map(passo => `<li>${passo}</li>`).join('')}
+                            ${instrucoesList.map(passo => `<li>${passo}</li>`).join('')}
                         </ol>
                     </div>
                 </div>

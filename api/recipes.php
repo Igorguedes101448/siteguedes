@@ -5,6 +5,7 @@
 // ============================================
 
 require_once 'db.php';
+require_once 'profanity-filter.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
@@ -76,6 +77,21 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'creat
         }
         
         $userId = $session['user_id'];
+        
+        // Validar conteúdo (filtro de palavras inadequadas)
+        $validation = validateRecipeContent([
+            'title' => $input['title'] ?? '',
+            'description' => $input['description'] ?? '',
+            'ingredients' => $input['ingredients'] ?? '',
+            'instructions' => $input['instructions'] ?? ''
+        ]);
+        
+        if (!$validation['isValid']) {
+            $errorMessages = array_map(function($error) {
+                return $error['message'];
+            }, $validation['errors']);
+            jsonError('Conteúdo inadequado detectado: ' . implode(' ', $errorMessages), 400);
+        }
         
         // Criar receita
         $stmt = $db->prepare("
@@ -158,6 +174,23 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'updat
         
         if (!$recipe || $recipe['author_id'] != $userId) {
             jsonError('Não tem permissão para editar esta receita.', 403);
+        }
+        
+        // Validar conteúdo editado (filtro de palavras inadequadas)
+        $contentToValidate = [];
+        if (isset($input['title'])) $contentToValidate['title'] = $input['title'];
+        if (isset($input['description'])) $contentToValidate['description'] = $input['description'];
+        if (isset($input['ingredients'])) $contentToValidate['ingredients'] = $input['ingredients'];
+        if (isset($input['instructions'])) $contentToValidate['instructions'] = $input['instructions'];
+        
+        if (!empty($contentToValidate)) {
+            $validation = validateRecipeContent($contentToValidate);
+            if (!$validation['isValid']) {
+                $errorMessages = array_map(function($error) {
+                    return $error['message'];
+                }, $validation['errors']);
+                jsonError('Conteúdo inadequado detectado: ' . implode(' ', $errorMessages), 400);
+            }
         }
         
         // Atualizar receita

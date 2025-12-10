@@ -12,9 +12,36 @@ document.addEventListener('DOMContentLoaded', function() {
     updateAuthMenu();
     setupUserDropdown();
     
-    // REMOVER TODAS AS RECEITAS DO LOCALSTORAGE
-    localStorage.removeItem('chefguedes-recipes');
+    // Inicializar receitas se não existirem
+    initializeRecipes();
 });
+
+// Inicializar receitas portuguesas
+function initializeRecipes() {
+    const recipes = getFromStorage('chefguedes-recipes');
+    
+    // Se não houver receitas, carregar as receitas portuguesas
+    if (!recipes || recipes.length === 0) {
+        if (typeof receitasPortuguesas !== 'undefined') {
+            const formattedRecipes = receitasPortuguesas.map(rp => ({
+                id: rp.id,
+                title: rp.titulo,
+                category: rp.categoria,
+                description: rp.descricao,
+                ingredients: rp.ingredientes.join('\n'),
+                instructions: rp.preparo.join('\n'),
+                image: rp.imagem || '',
+                prepTime: parseInt(rp.tempo) || 0,
+                difficulty: rp.dificuldade,
+                author: 'ChefGuedes',
+                createdAt: new Date().toISOString(),
+                likes: 0
+            }));
+            
+            saveToStorage('chefguedes-recipes', formattedRecipes);
+        }
+    }
+}
 
 // Função para inicializar o tema
 function initializeTheme() {
@@ -179,32 +206,74 @@ function getFromStorage(key) {
 
 // Obter todas as receitas
 function getAllRecipes() {
-    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
-    return [];
+    return getFromStorage('chefguedes-recipes') || [];
 }
 
 // Salvar receita
 function saveRecipe(recipe) {
-    // FUNÇÃO DESABILITADA - NÃO É POSSÍVEL CRIAR RECEITAS
-    return null;
+    const recipes = getAllRecipes();
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser) {
+        return { success: false, message: 'Utilizador não autenticado.' };
+    }
+    
+    if (recipe.id) {
+        // Atualizar receita existente
+        const index = recipes.findIndex(r => r.id === recipe.id);
+        if (index !== -1) {
+            recipes[index] = { ...recipe, updatedAt: new Date().toISOString() };
+        }
+    } else {
+        // Nova receita
+        recipe.id = Date.now().toString();
+        recipe.createdAt = new Date().toISOString();
+        recipe.author = currentUser.username;
+        recipe.likes = 0;
+        recipes.push(recipe);
+    }
+    
+    saveToStorage('chefguedes-recipes', recipes);
+    return { success: true, recipe };
 }
 
 // Deletar receita
 function deleteRecipe(recipeId) {
-    // FUNÇÃO DESABILITADA - NÃO HÁ RECEITAS PARA DELETAR
-    return;
+    const recipes = getAllRecipes();
+    const currentUser = getCurrentUser();
+    const recipe = recipes.find(r => r.id === recipeId);
+    
+    if (!recipe) {
+        return { success: false, message: 'Receita não encontrada.' };
+    }
+    
+    if (!currentUser || recipe.author !== currentUser.username) {
+        return { success: false, message: 'Não tem permissão para eliminar esta receita.' };
+    }
+    
+    const filtered = recipes.filter(r => r.id !== recipeId);
+    saveToStorage('chefguedes-recipes', filtered);
+    return { success: true };
 }
 
 // Obter receita por ID
 function getRecipeById(recipeId) {
-    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
-    return null;
+    const recipes = getAllRecipes();
+    return recipes.find(r => r.id === recipeId);
 }
 
 // Pesquisar receitas
 function searchRecipes(query, category = '') {
-    // TODAS AS RECEITAS FORAM REMOVIDAS PERMANENTEMENTE
-    return [];
+    const recipes = getAllRecipes();
+    return recipes.filter(recipe => {
+        const matchQuery = query === '' || 
+            recipe.title.toLowerCase().includes(query.toLowerCase()) ||
+            recipe.description.toLowerCase().includes(query.toLowerCase());
+        
+        const matchCategory = category === '' || recipe.category === category;
+        
+        return matchQuery && matchCategory;
+    });
 }
 
 // ===== GERENCIAMENTO DE GRUPOS =====
@@ -520,9 +589,13 @@ function getUserStats() {
     
     const userGroups = groups.filter(g => g.createdBy === currentUser.username);
     
+    const userRecipes = getAllRecipes().filter(r => r.author === currentUser.username);
+    const userFavorites = getFromStorage('chefguedes-favorites') || [];
+    const userFavoritesList = userFavorites.filter(f => f.userId === currentUser.username);
+    
     return {
-        recipes: 0, // TODAS AS RECEITAS FORAM REMOVIDAS
+        recipes: userRecipes.length,
         groups: userGroups.length,
-        favorites: 0
+        favorites: userFavoritesList.length
     };
 }

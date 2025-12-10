@@ -145,118 +145,34 @@
     <script>
         let currentRecipeId = null;
 
-        async function renderRecipes(recipes) {
-            const grid = document.getElementById('recipesGrid');
-            
-            // Adicionar receitas portuguesas
-            const receitasPortuguesas = getReceitasPortuguesas();
-            const todasReceitas = [...receitasPortuguesas, ...recipes];
-            
-            if (todasReceitas.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">Nenhuma receita encontrada.</p>';
-                return;
-            }
-            
-            grid.innerHTML = todasReceitas.map(recipe => {
-                // Verificar se é receita portuguesa ou do usuário
-                const isPortuguesaReceita = recipe.id && recipe.id.startsWith('rp');
-                
-                if (isPortuguesaReceita) {
-                    // Renderizar receita portuguesa (com link para página de detalhes)
-                    return `
-                        <div class="recipe-card" onclick="window.location.href='receita-detalhes.html?id=${recipe.id}'">
-                            <div class="recipe-image">
-                                <img src="../${recipe.imagem}" alt="${recipe.titulo}" onerror="this.innerHTML='🍳'">
-                            </div>
-                            <div class="recipe-content">
-                                <h3 class="recipe-title">${recipe.titulo}</h3>
-                                <span class="recipe-category">${recipe.categoria}</span>
-                                <p class="recipe-description">${recipe.descricao}</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Por ${recipe.autor}</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Renderizar receita do usuário (formato original)
-                    return `
-                        <div class="recipe-card" onclick="showRecipeDetails('${recipe.id}')">
-                            <div class="recipe-image">
-                                ${recipe.image ? `<img src="${recipe.image}" alt="${recipe.title}">` : '🍳'}
-                            </div>
-                            <div class="recipe-content">
-                                <h3 class="recipe-title">${recipe.title}</h3>
-                                <span class="recipe-category">${recipe.category}</span>
-                                <p class="recipe-description">${recipe.description}</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Por ${recipe.author}</p>
-                            </div>
-                        </div>
-                    `;
-                }
-            }).join('');
-        }
-
         async function filterRecipes() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('categoryFilter').value;
-            
-            // Filtrar receitas do usuário
-            const userRecipes = await searchRecipes(searchTerm, category);
-            
-            // Filtrar receitas portuguesas
-            let receitasPortuguesas = getReceitasPortuguesas();
-            
-            if (searchTerm) {
-                receitasPortuguesas = receitasPortuguesas.filter(r => 
-                    r.titulo.toLowerCase().includes(searchTerm) ||
-                    r.descricao.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (category) {
-                receitasPortuguesas = receitasPortuguesas.filter(r => r.categoria === category);
-            }
-            
-            // Renderizar todas as receitas filtradas
             const grid = document.getElementById('recipesGrid');
-            const todasReceitas = [...receitasPortuguesas, ...userRecipes];
             
-            if (todasReceitas.length === 0) {
+            // Buscar receitas da base de dados
+            const recipes = await searchRecipes(searchTerm, category);
+            
+            // Renderizar
+            if (recipes.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">Nenhuma receita encontrada.</p>';
                 return;
             }
             
-            grid.innerHTML = todasReceitas.map(recipe => {
-                const isPortuguesaReceita = recipe.id && recipe.id.startsWith('rp');
-                
-                if (isPortuguesaReceita) {
-                    return `
-                        <div class="recipe-card" onclick="window.location.href='receita-detalhes.html?id=${recipe.id}'">
-                            <div class="recipe-image">
-                                <img src="../${recipe.imagem}" alt="${recipe.titulo}" onerror="this.innerHTML='🍳'">
-                            </div>
-                            <div class="recipe-content">
-                                <h3 class="recipe-title">${recipe.titulo}</h3>
-                                <span class="recipe-category">${recipe.categoria}</span>
-                                <p class="recipe-description">${recipe.descricao}</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Por ${recipe.autor}</p>
-                            </div>
+            grid.innerHTML = recipes.map(recipe => {
+                return `
+                    <div class="recipe-card" onclick="window.location.href='receita-detalhes.html?id=${recipe.id}'">
+                        <div class="recipe-image">
+                            ${recipe.image ? `<img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentElement.innerHTML='🍳'">` : '🍳'}
                         </div>
-                    `;
-                } else {
-                    return `
-                        <div class="recipe-card" onclick="showRecipeDetails('${recipe.id}')">
-                            <div class="recipe-image">
-                                ${recipe.image ? `<img src="${recipe.image}" alt="${recipe.title}">` : '🍳'}
-                            </div>
-                            <div class="recipe-content">
-                                <h3 class="recipe-title">${recipe.title}</h3>
-                                <span class="recipe-category">${recipe.category}</span>
-                                <p class="recipe-description">${recipe.description}</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Por ${recipe.author}</p>
-                            </div>
+                        <div class="recipe-content">
+                            <h3 class="recipe-title">${recipe.title}</h3>
+                            <span class="recipe-category">${recipe.category}</span>
+                            <p class="recipe-description">${recipe.description}</p>
+                            <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Por ${recipe.author_name || 'ChefGuedes'}</p>
                         </div>
-                    `;
-                }
+                    </div>
+                `;
             }).join('');
         }
 

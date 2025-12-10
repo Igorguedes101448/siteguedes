@@ -5,6 +5,7 @@
 // ============================================
 
 require_once 'db.php';
+require_once 'profanity-filter.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
@@ -18,8 +19,8 @@ if ($method === 'GET') {
         
         $sql = "
             SELECT g.*, u.username as created_by_name,
-                   (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count
-            FROM groups g
+                   (SELECT COUNT(*) FROM `group_members` WHERE group_id = g.id) as member_count
+            FROM `groups` g
             LEFT JOIN users u ON g.created_by = u.id
             ORDER BY g.created_at DESC
         ";
@@ -58,9 +59,23 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'creat
         
         $userId = $session['user_id'];
         
+        // Validar nome do grupo (filtro de palavras inadequadas)
+        $validation = validateGroupName($input['name'] ?? '');
+        if (!$validation['isValid']) {
+            jsonError('Nome do grupo contém palavras inadequadas.', 400);
+        }
+        
+        // Validar descrição do grupo
+        if (!empty($input['description'])) {
+            $descCheck = checkProfanity($input['description']);
+            if (!$descCheck['isClean']) {
+                jsonError('Descrição do grupo contém palavras inadequadas.', 400);
+            }
+        }
+        
         // Criar grupo
         $stmt = $db->prepare("
-            INSERT INTO groups (name, description, image, created_by) 
+            INSERT INTO `groups` (name, description, image, created_by) 
             VALUES (?, ?, ?, ?)
         ");
         $stmt->execute([
@@ -74,7 +89,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'creat
         
         // Adicionar criador como membro admin
         $stmt = $db->prepare("
-            INSERT INTO group_members (group_id, user_id, role) 
+            INSERT INTO `group_members` (group_id, user_id, role) 
             VALUES (?, ?, 'admin')
         ");
         $stmt->execute([$groupId, $userId]);
@@ -89,7 +104,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'creat
         // Buscar grupo criado
         $stmt = $db->prepare("
             SELECT g.*, u.username as created_by_name
-            FROM groups g
+            FROM `groups` g
             LEFT JOIN users u ON g.created_by = u.id
             WHERE g.id = ?
         ");
@@ -134,7 +149,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'add_m
         $adminUserId = $session['user_id'];
         
         // Verificar se o utilizador é admin do grupo
-        $stmt = $db->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
+        $stmt = $db->prepare("SELECT role FROM `group_members` WHERE group_id = ? AND user_id = ?");
         $stmt->execute([$groupId, $adminUserId]);
         $member = $stmt->fetch();
         
@@ -152,18 +167,18 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'add_m
         }
         
         // Verificar se já é membro
-        $stmt = $db->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
+        $stmt = $db->prepare("SELECT id FROM `group_members` WHERE group_id = ? AND user_id = ?");
         $stmt->execute([$groupId, $targetUser['id']]);
         if ($stmt->fetch()) {
             jsonError('Este utilizador já é membro do grupo.', 400);
         }
         
         // Adicionar como membro
-        $stmt = $db->prepare("INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'member')");
+        $stmt = $db->prepare("INSERT INTO `group_members` (group_id, user_id, role) VALUES (?, ?, 'member')");
         $stmt->execute([$groupId, $targetUser['id']]);
         
         // Criar notificação para o novo membro
-        $stmt = $db->prepare("SELECT name FROM groups WHERE id = ?");
+        $stmt = $db->prepare("SELECT name FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         $group = $stmt->fetch();
         
@@ -212,7 +227,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'remov
         $adminUserId = $session['user_id'];
         
         // Verificar se é admin
-        $stmt = $db->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
+        $stmt = $db->prepare("SELECT role FROM `group_members` WHERE group_id = ? AND user_id = ?");
         $stmt->execute([$groupId, $adminUserId]);
         $member = $stmt->fetch();
         
@@ -221,7 +236,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'remov
         }
         
         // Não permitir remover admins
-        $stmt = $db->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
+        $stmt = $db->prepare("SELECT role FROM `group_members` WHERE group_id = ? AND user_id = ?");
         $stmt->execute([$groupId, $userId]);
         $targetMember = $stmt->fetch();
         
@@ -230,7 +245,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'remov
         }
         
         // Remover membro
-        $stmt = $db->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
+        $stmt = $db->prepare("DELETE FROM `group_members` WHERE group_id = ? AND user_id = ?");
         $stmt->execute([$groupId, $userId]);
         
         jsonSuccess('Membro removido com sucesso!');
@@ -251,7 +266,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'get_m
         
         $stmt = $db->prepare("
             SELECT gm.user_id, gm.role, u.username, u.email, u.profile_picture
-            FROM group_members gm
+            FROM `group_members` gm
             JOIN users u ON gm.user_id = u.id
             WHERE gm.group_id = ?
             ORDER BY gm.role DESC, u.username ASC
@@ -292,7 +307,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'delet
         $userId = $session['user_id'];
         
         // Verificar se o utilizador é o criador
-        $stmt = $db->prepare("SELECT created_by FROM groups WHERE id = ?");
+        $stmt = $db->prepare("SELECT created_by FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         $group = $stmt->fetch();
         
@@ -301,7 +316,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'delet
         }
         
         // Apagar grupo (membros serão apagados automaticamente por CASCADE)
-        $stmt = $db->prepare("DELETE FROM groups WHERE id = ?");
+        $stmt = $db->prepare("DELETE FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         
         // Registar atividade

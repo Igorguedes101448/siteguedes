@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Criar Grupo</title>
+</head>
+<body>
+    <h1>Teste de Criação de Grupo</h1>
+    <div id="result"></div>
+    
+    <script src="js/auth-api.js"></script>
+    <script src="js/main-api.js"></script>
+    <script>
+        async function testCreateGroup() {
+            const resultDiv = document.getElementById('result');
+            
+            // Verificar se está logado
+            if (!isUserLoggedIn()) {
+                resultDiv.innerHTML = '<p style="color: red;">Erro: Utilizador não está logado</p>';
+                return;
+            }
+            
+            const user = await getCurrentUser();
+            resultDiv.innerHTML = `<p>Utilizador logado: ${user.username}</p>`;
+            
+            // Tentar criar grupo
+            const groupData = {
+                name: 'Grupo Teste',
+                description: 'Este é um grupo de teste'
+            };
+            
+            resultDiv.innerHTML += '<p>Tentando criar grupo...</p>';
+            
+            const result = await saveGroup(groupData);
+            
+            if (result.success) {
+                resultDiv.innerHTML += '<p style="color: green;">Grupo criado com sucesso!</p>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } else {
+                resultDiv.innerHTML += '<p style="color: red;">Erro ao criar grupo: ' + result.message + '</p>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            }
+        }
+        
+        // Executar teste
+        testCreateGroup();
+    </script>
+</body>
+</html>

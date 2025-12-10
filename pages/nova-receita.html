@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Receita - ChefGuedes</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/profanity-filter.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -158,6 +159,14 @@
 
         let uploadedImage = null;
 
+        // Ativar validação em tempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            validateFieldRealtime('title', 'O título');
+            validateFieldRealtime('description', 'A descrição');
+            validateFieldRealtime('ingredients', 'Os ingredientes');
+            validateFieldRealtime('instructions', 'As instruções');
+        });
+
         // Subcategorias
         const subcategories = {
             'Entrada': ['Petiscos', 'Salgados', 'Queijos', 'Enchidos', 'Marisco', 'Vegetarianas'],
@@ -225,6 +234,19 @@
                 visibility: document.querySelector('input[name="visibility"]:checked').value,
                 isDraft: false
             };
+
+            // Validar conteúdo antes de enviar
+            const validation = validateRecipeContent(recipeData);
+            if (!validation.isValid) {
+                const errorMessage = validation.errors.map(e => e.message).join('\n');
+                showError(errorMessage);
+                
+                // Destacar campos com erros
+                validation.errors.forEach(error => {
+                    showFieldValidation(error.field, false, error.message);
+                });
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_BASE}/recipes.php`, {
