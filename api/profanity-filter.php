@@ -11,18 +11,18 @@
 function getProfanityList() {
     return [
         // Palavrões comuns em português
-        'puta', 'puto', 'caralho', 'foda', 'foder', 'merda', 'cagar', 
-        'bosta', 'cu', 'rabo', 'piça', 'pica', 'pila', 'cacete', 
-        'cona', 'buceta', 'xoxota', 'pisa', 'pisa', 'pissa',
-        'penis', 'vagina', 'sexo', 'foda-se', 'fodase',
+        'puta', 'caralho', 'foda', 'foder', 'merda', 'cagar', 
+        'bosta', 'piça', 'pica', 'pila', 'cacete', 
+        'cona', 'buceta', 'xoxota', 'pissa',
+        'foda-se', 'fodase',
         
         // Palavrões em inglês
         'fuck', 'fucking', 'fucker', 'motherfucker', 'fucked',
         'shit', 'shitty', 'bullshit', 'shitter',
-        'bitch', 'bitches', 'bitching', 'son of a bitch',
-        'asshole', 'ass', 'arse', 'bastard', 'damn', 'dammit',
+        'bitch', 'bitches', 'bitching',
+        'asshole', 'bastard',
         'pussy', 'cunt', 'dick', 'cock', 'prick', 'twat',
-        'whore', 'slut', 'slag', 'skank',
+        'whore', 'slut', 'skank',
         
         // Insultos em português
         'idiota', 'imbecil', 'estupido', 'estúpido', 'burro', 'burra',
@@ -76,19 +76,11 @@ function checkProfanity($text) {
     $normalizedText = removeAccents($normalizedText);
     
     foreach ($profanityList as $word) {
-        // Criar padrão regex para detectar a palavra com limites
-        // \b não funciona bem com acentos, então usamos alternativa
-        $pattern = '/(?:^|[\s\.,;!?"\'\(\)\[\]\{\}])'
-                 . preg_quote($word, '/')
-                 . '(?:$|[\s\.,;!?"\'\(\)\[\]\{\}s])/iu';
+        // Criar padrão regex para detectar a palavra INTEIRA com limites de palavra
+        // Usa \b para limites de palavra para evitar falsos positivos
+        $pattern = '/\b' . preg_quote($word, '/') . '\b/iu';
         
         if (preg_match($pattern, $normalizedText)) {
-            $foundWords[] = $word;
-        }
-        
-        // Verificar também sem espaços (palavras concatenadas)
-        $compactPattern = '/' . preg_quote($word, '/') . '/iu';
-        if (preg_match($compactPattern, $normalizedText) && !in_array($word, $foundWords)) {
             $foundWords[] = $word;
         }
     }

@@ -60,16 +60,22 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'creat
         $userId = $session['user_id'];
         
         // Validar nome do grupo (filtro de palavras inadequadas)
-        $validation = validateGroupName($input['name'] ?? '');
+        $groupName = $input['name'] ?? '';
+        if (empty($groupName)) {
+            jsonError('Nome do grupo é obrigatório.', 400);
+        }
+        
+        $validation = validateGroupName($groupName);
         if (!$validation['isValid']) {
-            jsonError('Nome do grupo contém palavras inadequadas.', 400);
+            jsonError('Nome do grupo contém palavras inadequadas: ' . implode(', ', $validation['errors']), 400);
         }
         
         // Validar descrição do grupo
         if (!empty($input['description'])) {
             $descCheck = checkProfanity($input['description']);
             if (!$descCheck['isClean']) {
-                jsonError('Descrição do grupo contém palavras inadequadas.', 400);
+                $foundWords = implode(', ', $descCheck['foundWords']);
+                jsonError('Descrição do grupo contém palavras inadequadas: ' . $foundWords, 400);
             }
         }
         

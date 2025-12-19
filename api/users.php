@@ -221,7 +221,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'verif
         
         // Buscar sessão
         $stmt = $db->prepare("
-            SELECT s.*, u.id, u.username, u.email, u.profile_picture, u.phone, u.bio, u.location, u.created_at
+            SELECT s.*, u.id, u.username, u.email, u.user_code, u.profile_picture, u.phone, u.bio, u.location, u.created_at
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.session_token = ? AND (s.expires_at IS NULL OR s.expires_at > NOW())
@@ -247,6 +247,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'verif
             'id' => $session['id'],
             'username' => $session['username'],
             'email' => $session['email'],
+            'user_code' => $session['user_code'],
             'profile_picture' => $session['profile_picture'],
             'phone' => $session['phone'],
             'bio' => $session['bio'],
@@ -353,7 +354,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'updat
         $stmt->execute([$userId]);
         
         // Buscar dados atualizados
-        $stmt = $db->prepare("SELECT id, username, email, profile_picture, phone, bio, location, created_at FROM users WHERE id = ?");
+        $stmt = $db->prepare("SELECT id, username, email, user_code, profile_picture, phone, bio, location, created_at FROM users WHERE id = ?");
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
         
