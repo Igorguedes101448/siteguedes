@@ -9,9 +9,9 @@
     --primary-dark: #e85a28;         /* Laranja mais escuro */
     --primary-light: #ff8558;        /* Laranja mais claro */
     
-    --secondary-color: #004e89;      /* Azul profundo */
-    --secondary-dark: #003a65;       /* Azul mais escuro */
-    --secondary-light: #1a6ba8;      /* Azul mais claro */
+    --secondary-color: #8B4513;      /* Castanho sela - substitui azul */
+    --secondary-dark: #6b3410;       /* Castanho mais escuro */
+    --secondary-light: #a0522d;      /* Castanho mais claro */
     
     --accent-color: #f7b32b;         /* Amarelo dourado */
     --accent-dark: #d99b1f;          /* Dourado mais escuro */
@@ -20,7 +20,7 @@
     --success-color: #2a9d8f;        /* Verde água */
     --danger-color: #e63946;         /* Vermelho */
     --warning-color: #f77f00;        /* Laranja médio */
-    --info-color: #06aed5;           /* Ciano */
+    --info-color: #ff9966;           /* Laranja suave - substitui azul ciano */
     
     /* ===== Fundos e Superfícies ===== */
     --bg-primary: #fafafa;           /* Fundo principal claro */
@@ -57,9 +57,9 @@
     --primary-dark: #ff6b35;
     --primary-light: #ffa07a;
     
-    --secondary-color: #0077b6;      /* Azul mais brilhante */
-    --secondary-dark: #005a8d;
-    --secondary-light: #0096c7;
+    --secondary-color: #a0522d;      /* Castanho sienna - substitui azul */
+    --secondary-dark: #8B4513;
+    --secondary-light: #bc6c3d;
     
     --accent-color: #fdc500;         /* Amarelo mais vibrante */
     --accent-dark: #e5b100;
@@ -68,7 +68,7 @@
     --success-color: #2ec4b6;        /* Verde água mais brilhante */
     --danger-color: #ff6b6b;         /* Vermelho mais suave */
     --warning-color: #ff9f1c;        /* Laranja mais suave */
-    --info-color: #48cae4;
+    --info-color: #ffaa77;           /* Laranja pêssego - substitui azul */
     
     /* Fundos escuros */
     --bg-primary: #1a1d23;           /* Fundo principal escuro */

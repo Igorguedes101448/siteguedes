@@ -368,8 +368,14 @@ function redirectAfterLogin() {
     const redirect = sessionStorage.getItem('chefguedes-redirect');
     sessionStorage.removeItem('chefguedes-redirect');
     
+    // Verificar se é admin
+    const currentUser = getCurrentUser();
+    const isAdmin = currentUser && currentUser.is_admin === 1;
+    
     if (redirect && redirect !== '/login.html' && redirect !== '/registo.html') {
         window.location.href = redirect;
+    } else if (isAdmin) {
+        window.location.href = 'pages/admin.html';
     } else {
         window.location.href = 'pages/dashboard.html';
     }

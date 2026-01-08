@@ -6,8 +6,23 @@ $error = '';
 
 // Verificar se já está logado
 if (isset($_SESSION['user_id'])) {
-    header('Location: pages/dashboard.html');
-    exit;
+    // Verificar se é admin
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("SELECT is_admin FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+        
+        if ($user && $user['is_admin'] == 1) {
+            header('Location: pages/admin.html');
+        } else {
+            header('Location: pages/dashboard.html');
+        }
+        exit;
+    } catch (PDOException $e) {
+        header('Location: pages/dashboard.html');
+        exit;
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,21 +44,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$user || !password_verify($password, $user['password'])) {
                 $error = 'Email ou palavra-passe incorretos.';
             } else {
-                // Login bem-sucedido
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['email'] = $user['email'];
-                
-                // Criar token de sessão na BD
-                $sessionToken = bin2hex(random_bytes(32));
-                $expiresAt = $rememberMe ? date('Y-m-d H:i:s', strtotime('+30 days')) : date('Y-m-d H:i:s', strtotime('+24 hours'));
-                
-                $stmt = $db->prepare("INSERT INTO sessions (user_id, session_token, remember_me, expires_at) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$user['id'], $sessionToken, $rememberMe ? 1 : 0, $expiresAt]);
-                
-                // Redirecionar
-                header('Location: pages/dashboard.html');
-                exit;
+                // Verificar se o utilizador está banido
+                if (isset($user['banned']) && $user['banned'] == 1) {
+                    $banReason = $user['banned_reason'] ?? 'Sem motivo especificado';
+                    $error = '🚫 A sua conta foi banida permanentemente. Motivo: ' . htmlspecialchars($banReason);
+                } 
+                // Verificar se o utilizador está suspenso
+                elseif (isset($user['suspended_until']) && $user['suspended_until'] && strtotime($user['suspended_until']) > time()) {
+                    $suspendedUntil = date('d/m/Y H:i', strtotime($user['suspended_until']));
+                    $error = '⏸️ A sua conta está suspensa até ' . $suspendedUntil . '. Tente novamente após essa data.';
+                } 
+                else {
+                    // Se estava suspenso mas o tempo expirou, limpar suspensão
+                    if (isset($user['suspended_until']) && $user['suspended_until'] && strtotime($user['suspended_until']) <= time()) {
+                        $stmt = $db->prepare("UPDATE users SET suspended_until = NULL WHERE id = ?");
+                        $stmt->execute([$user['id']]);
+                    }
+                    
+                    // Login bem-sucedido
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
+                    
+                    // Criar token de sessão na BD
+                    $sessionToken = bin2hex(random_bytes(32));
+                    $expiresAt = $rememberMe ? date('Y-m-d H:i:s', strtotime('+30 days')) : date('Y-m-d H:i:s', strtotime('+24 hours'));
+                    
+                    $stmt = $db->prepare("INSERT INTO sessions (user_id, session_token, remember_me, expires_at) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$user['id'], $sessionToken, $rememberMe ? 1 : 0, $expiresAt]);
+                    
+                    // Redirecionar para página apropriada
+                    if ($user['is_admin'] == 1) {
+                        header('Location: pages/admin.html');
+                    } else {
+                        header('Location: pages/dashboard.html');
+                    }
+                    exit;
+                }
             }
         } catch (PDOException $e) {
             $error = 'Erro de conexão. Certifique-se de que a base de dados foi criada.';

@@ -133,7 +133,7 @@ async function loginUser(email, password, rememberMe = false) {
 }
 
 // Fazer logout
-async function logoutUser() {
+async function logoutUser(redirectUrl = null) {
     const sessionToken = getSessionToken();
     
     try {
@@ -154,8 +154,12 @@ async function logoutUser() {
     clearSessionToken();
     currentUserCache = null;
     
-    // Redirecionar para página inicial
-    window.location.href = '../index.html';
+    // Redirecionar para página especificada ou página inicial
+    if (redirectUrl) {
+        window.location.href = redirectUrl;
+    } else {
+        window.location.href = '../index.html';
+    }
 }
 
 // Verificar se utilizador está logado
@@ -405,12 +409,18 @@ async function requireAuth() {
 }
 
 // Redirecionar após login
-function redirectAfterLogin() {
+async function redirectAfterLogin() {
     const redirect = sessionStorage.getItem('chefguedes-redirect');
     sessionStorage.removeItem('chefguedes-redirect');
     
+    // Verificar se é admin
+    const user = await getCurrentUser();
+    const isAdmin = user && user.is_admin == 1;
+    
     if (redirect && redirect !== '/login.html' && redirect !== '/registo.html') {
         window.location.href = redirect;
+    } else if (isAdmin) {
+        window.location.href = 'pages/admin.html';
     } else {
         window.location.href = 'pages/dashboard.html';
     }

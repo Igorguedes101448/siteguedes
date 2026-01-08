@@ -116,6 +116,24 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'login
             jsonError('Email ou palavra-passe incorretos.');
         }
         
+        // Verificar se o utilizador está banido
+        if (isset($user['banned']) && $user['banned'] == 1) {
+            $banReason = $user['banned_reason'] ?? 'Sem motivo especificado';
+            jsonError('A sua conta foi banida. Motivo: ' . $banReason, 403);
+        }
+        
+        // Verificar se o utilizador está suspenso
+        if (isset($user['suspended_until']) && $user['suspended_until'] && strtotime($user['suspended_until']) > time()) {
+            $suspendedUntil = date('d/m/Y H:i', strtotime($user['suspended_until']));
+            jsonError('A sua conta está suspensa até ' . $suspendedUntil, 403);
+        }
+        
+        // Se estava suspenso mas o tempo expirou, limpar suspensão
+        if (isset($user['suspended_until']) && $user['suspended_until'] && strtotime($user['suspended_until']) <= time()) {
+            $stmt = $db->prepare("UPDATE users SET suspended_until = NULL WHERE id = ?");
+            $stmt->execute([$user['id']]);
+        }
+        
         // Criar token de sessão
         $sessionToken = bin2hex(random_bytes(32));
         $expiresAt = $rememberMe ? date('Y-m-d H:i:s', strtotime('+30 days')) : date('Y-m-d H:i:s', strtotime('+24 hours'));
@@ -221,7 +239,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'verif
         
         // Buscar sessão
         $stmt = $db->prepare("
-            SELECT s.*, u.id, u.username, u.email, u.user_code, u.profile_picture, u.phone, u.bio, u.location, u.created_at
+            SELECT s.*, u.id, u.username, u.email, u.user_code, u.profile_picture, u.phone, u.bio, u.location, u.created_at, u.is_admin
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.session_token = ? AND (s.expires_at IS NULL OR s.expires_at > NOW())
@@ -253,6 +271,7 @@ if ($method === 'POST' && isset($input['action']) && $input['action'] === 'verif
             'bio' => $session['bio'],
             'location' => $session['location'],
             'created_at' => $session['created_at'],
+            'is_admin' => $session['is_admin'] ?? 0,
             'preferences' => $preferences,
             'favorites' => $favorites
         ];

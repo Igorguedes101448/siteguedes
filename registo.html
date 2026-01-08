@@ -402,7 +402,11 @@
             if (isUserLoggedIn()) {
                 const user = await getCurrentUser();
                 if (user) {
-                    window.location.href = 'pages/dashboard.html';
+                    if (user.is_admin == 1) {
+                        window.location.href = 'pages/admin.html';
+                    } else {
+                        window.location.href = 'pages/dashboard.html';
+                    }
                 }
             }
         })();
