@@ -145,8 +145,12 @@ function logoutUser() {
     localStorage.removeItem('chefguedes-session');
     sessionStorage.removeItem('chefguedes-session');
     
-    // Redirecionar para página inicial
-    window.location.href = '../index.html';
+    // Detectar se estamos numa subpasta (pages/) ou na raiz
+    const isInPagesFolder = window.location.pathname.includes('/pages/');
+    const loginPath = isInPagesFolder ? '../login.html' : 'login.html';
+    
+    // Redirecionar para página de login
+    window.location.href = loginPath;
 }
 
 // Verificar se utilizador está logado

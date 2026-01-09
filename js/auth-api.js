@@ -158,7 +158,10 @@ async function logoutUser(redirectUrl = null) {
     if (redirectUrl) {
         window.location.href = redirectUrl;
     } else {
-        window.location.href = '../index.html';
+        // Detectar se estamos numa subpasta (pages/) ou na raiz
+        const isInPagesFolder = window.location.pathname.includes('/pages/');
+        const loginPath = isInPagesFolder ? '../login.html' : 'login.html';
+        window.location.href = loginPath;
     }
 }
 
